@@ -4,317 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spel op Tafel - Review Kanban</title>
-    <!-- SortableJS voor Drag & Drop -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <!-- FontAwesome voor Iconen -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
     <style>
         :root {
-            --primary: #f37021; /* Spel op Tafel Oranje */
+            --primary: #f37021; /* In Bezit Oranje */
             --primary-hover: #d95c14;
+            --blue: #3b82f6; /* Reviewexemplaar Blauw */
             --bg: #f4f6f8;
             --card-bg: #ffffff;
             --text: #333;
             --border: #e0e0e0;
             --column-bg: #eef1f5;
         }
-        
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg); 
             margin: 0; 
             color: var(--text); 
         }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         
-        .container { 
-            max-width: 1400px; 
-            margin: 0 auto; 
-            padding: 20px; 
-        }
-        
-        #login-screen { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-        }
-        #login-screen h1 {
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-        #login-screen img {
-            max-width: 150px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-        }
-        #login-screen input { 
-            padding: 12px; 
-            margin-bottom: 15px; 
-            border-radius: 8px; 
-            border: 1px solid var(--border); 
-            width: 250px; 
-            font-size: 16px; 
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-        }
-        
-        .btn { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 14px;
-            transition: background 0.2s ease;
-        }
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        #login-screen h1 { color: var(--primary); margin-bottom: 5px; font-size: 32px;}
+        #login-screen input { padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border); width: 250px; font-size: 16px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);}
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s ease;}
         .btn:hover { background: var(--primary-hover); }
 
-        header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: white; 
-            padding: 15px 30px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            border-radius: 12px; 
-            margin-bottom: 20px;
-            flex-wrap: wrap; 
-            gap: 15px;
-        }
-        .logo-area { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            font-size: 24px; 
-            font-weight: bold; 
-            color: var(--primary); 
-        }
-        .logo-area img {
-            height: 40px;
-            border-radius: 6px;
-        }
-        .controls { 
-            display: flex; 
-            gap: 15px; 
-            flex-wrap: wrap; 
-            align-items: center;
-        }
-        .controls input, .controls select { 
-            padding: 10px; 
-            border-radius: 8px; 
-            border: 1px solid var(--border);
-            font-size: 14px;
-        }
+        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
+        .logo-area { display: flex; align-items: center; gap: 15px; font-size: 24px; font-weight: bold; color: var(--primary); }
+        .controls { display: flex; gap: 15px; flex-wrap: wrap; align-items: center;}
+        .controls input, .controls select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px;}
         
-        .stats-bar { 
-            background: white; 
-            padding: 12px 20px; 
-            border-radius: 12px; 
-            margin-bottom: 25px; 
-            font-size: 14px; 
-            display: flex; 
-            gap: 20px; 
-            overflow-x: auto; 
-            white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            align-items: center;
-        }
+        .stats-bar { background: white; padding: 12px 20px; border-radius: 12px; margin-bottom: 25px; font-size: 14px; display: flex; gap: 20px; overflow-x: auto; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.03);}
         
+        /* Board Rijen */
         .board-row { margin-bottom: 40px; }
-        .board-row h3 { 
-            color: var(--primary); 
-            border-bottom: 2px solid var(--primary); 
-            padding-bottom: 8px; 
-            margin-bottom: 20px; 
-            font-size: 22px;
-            display: inline-block;
-        }
-        .board { 
-            display: flex; 
-            gap: 20px; 
-            overflow-x: auto; 
-            padding-bottom: 15px; 
-            min-height: 200px;
-        }
+        .board-row h3 { border-bottom: 2px solid; padding-bottom: 8px; margin-bottom: 20px; font-size: 22px; display: inline-block;}
+        .board { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 15px; min-height: 200px;}
+        
+        /* Kleurscheiding voor de categorieën */
+        .cat-review h3 { color: var(--blue); border-bottom-color: var(--blue); }
+        .cat-review .card { border-left-color: var(--blue); }
+        .cat-review .bgg-link { color: var(--blue); }
+        .cat-review .bgg-link:hover { color: #2563eb; }
+        
+        .cat-bezit h3 { color: var(--primary); border-bottom-color: var(--primary); }
+        .cat-bezit .card { border-left-color: var(--primary); }
         
         .board::-webkit-scrollbar { height: 8px; }
         .board::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .board::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
         .board::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
-        .column { 
-            background: var(--column-bg); 
-            min-width: 300px; 
-            width: 300px; 
-            border-radius: 12px; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            border: 1px solid #e0e5ec;
-        }
-        .col-header { 
-            font-weight: bold; 
-            margin-bottom: 15px; 
-            font-size: 14px; 
-            text-transform: uppercase; 
-            color: #555;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .count-badge {
-            background: #cbd5e1;
-            color: #334155;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-        .task-list { 
-            flex-grow: 1; 
-            min-height: 100px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-        }
+        .column { background: var(--column-bg); min-width: 300px; width: 300px; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; border: 1px solid #e0e5ec;}
+        .col-header { font-weight: bold; margin-bottom: 15px; font-size: 15px; text-transform: uppercase; color: #555; display: flex; justify-content: space-between; align-items: center;}
+        .task-list { flex-grow: 1; min-height: 100px; display: flex; flex-direction: column; gap: 12px; }
         
-        .card { 
-            background: var(--card-bg); 
-            padding: 15px; 
-            border-radius: 10px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08); 
-            cursor: pointer; 
-            position: relative; 
-            border-left: 5px solid var(--primary); 
-            transition: all 0.2s ease;
-        }
-        .card:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .card-title { 
-            font-weight: 600; 
-            margin-bottom: 6px; 
-            font-size: 16px;
-            color: #222;
-            padding-right: 25px;
-        }
-        .card-pub { 
-            font-size: 13px; 
-            color: #666; 
-            margin-bottom: 10px;
-        }
-        .card-meta { 
-            font-size: 12px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            color: #555; 
-            margin-top: 8px;
-        }
-        .tag { 
-            background: #e2e8f0; 
-            color: #475569;
-            padding: 4px 10px; 
-            border-radius: 12px; 
-            font-size: 11px; 
-            font-weight: bold;
-        }
-        .bgg-link { 
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            color: var(--primary); 
-            font-size: 16px;
-            transition: color 0.2s;
-        }
+        .card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); cursor: pointer; position: relative; border-left: 5px solid; transition: all 0.2s ease;}
+        .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+        .card-title { font-weight: 600; margin-bottom: 6px; font-size: 16px; color: #222; padding-right: 25px; }
+        .card-pub { font-size: 13px; color: #666; margin-bottom: 10px;}
+        .card-meta { font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: #555; margin-top: 8px;}
+        .tag { background: #e2e8f0; color: #475569; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;}
+        .bgg-link { position: absolute; top: 15px; right: 15px; font-size: 16px; color: var(--primary); transition: color 0.2s;}
         .bgg-link:hover { color: var(--primary-hover); }
-        .sortable-ghost { opacity: 0.4; }
 
-        #modal-overlay { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0; 
-            background: rgba(0,0,0,0.6); 
-            z-index: 1000; 
-            align-items: center; 
-            justify-content: center;
-            backdrop-filter: blur(3px);
-        }
-        .modal { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 16px; 
-            width: 90%; 
-            max-width: 650px; 
-            max-height: 90vh; 
-            overflow-y: auto; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        .modal h2 { 
-            margin-top: 0; 
-            color: var(--primary); 
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .modal-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-        }
+        #modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(3px);}
+        .modal { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;}
+        .modal h2 { margin-top: 0; color: #444; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px;}
+        .close-btn { position: absolute; top: 30px; right: 30px; font-size: 22px; cursor: pointer; color: #888; transition: color 0.2s;}
+        .close-btn:hover { color: #222; }
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { margin-bottom: 5px; }
         .form-group.full-width { grid-column: span 2; }
-        .form-group label { 
-            display: block; 
-            font-size: 13px; 
-            font-weight: bold; 
-            margin-bottom: 8px; 
-            color: #444;
-        }
-        .form-group input, .form-group select { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid var(--border); 
-            border-radius: 8px; 
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(243, 112, 33, 0.2);
-        }
-        .modal-actions { 
-            display: flex; 
-            justify-content: flex-end; 
-            gap: 15px;
-            margin-top: 25px; 
-            grid-column: span 2; 
-            border-top: 1px solid var(--border);
-            padding-top: 20px;
-        }
-        .btn-cancel {
-            background: #f1f5f9;
-            color: #475569;
-        }
-        .btn-cancel:hover { background: #e2e8f0; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #444;}
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 14px;}
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(243, 112, 33, 0.2);}
         
-        #loading { 
-            display: none; 
-            text-align: center; 
-            padding: 30px; 
-            font-weight: bold; 
-            color: var(--primary); 
-            font-size: 18px;
-        }
+        #loading { display: none; text-align: center; padding: 30px; font-weight: bold; color: var(--primary); font-size: 18px;}
+        .auto-save-toast { position: absolute; bottom: -30px; right: 10px; font-size: 12px; color: #10b981; font-weight: bold; opacity: 0; transition: opacity 0.3s;}
 
         @media (max-width: 768px) {
             .modal-grid { grid-template-columns: 1fr; gap: 15px; }
             .form-group.full-width { grid-column: span 1; }
-            .modal-actions { grid-column: span 1; }
             header { flex-direction: column; align-items: stretch; }
             .controls { justify-content: space-between; }
             .controls input, .controls select, .controls button { width: 100%; }
@@ -324,7 +97,8 @@
 <body>
 
     <div id="login-screen">
-        <img src="https://www.speloptafel.nl/wp-content/uploads/2023/11/cropped-Logo-SoT.png" alt="Spel op Tafel Logo">
+        <i class="fa-solid fa-dice-d20" style="font-size: 50px; color: var(--primary); margin-bottom: 15px;"></i>
+        <h1>Spel op Tafel</h1>
         <p style="color: #666; margin-bottom: 20px;">Review Management Systeem</p>
         <input type="password" id="pwdInput" placeholder="Wachtwoord invoeren..." onkeypress="if(event.key === 'Enter') login()">
         <button class="btn" onclick="login()">Inloggen <i class="fa-solid fa-arrow-right"></i></button>
@@ -334,7 +108,7 @@
     <div id="app-screen" style="display: none;" class="container">
         <header>
             <div class="logo-area">
-                <img src="https://www.speloptafel.nl/wp-content/uploads/2023/11/cropped-Logo-SoT.png" alt="Logo">
+                <i class="fa-solid fa-dice-d20"></i>
                 Review Kanban
             </div>
             <div class="controls">
@@ -350,16 +124,15 @@
         </header>
 
         <div class="stats-bar" id="statsBar">Statistieken laden...</div>
-        
         <div id="loading"><i class="fa-solid fa-dice fa-spin"></i> Gegevens ophalen uit Google Sheets...</div>
         
-        <!-- Hier worden de Kanban kolommen gegenereerd -->
         <div id="kanban-board"></div>
     </div>
 
     <div id="modal-overlay">
         <div class="modal">
-            <h2 id="modalTitle"><i class="fa-solid fa-pen-to-square"></i> Spel Toevoegen/Bewerken</h2>
+            <i class="fa-solid fa-xmark close-btn" onclick="saveGame()" title="Opslaan & Sluiten"></i>
+            <h2 id="modalTitle"><i class="fa-solid fa-pen-to-square"></i> Spel Bewerken</h2>
             <input type="hidden" id="gId">
             <div class="modal-grid">
                 <div class="form-group full-width">
@@ -412,10 +185,14 @@
 
                 <div class="form-group">
                     <label><i class="fa-solid fa-file-lines"></i> Tekst Status</label>
-                    <input type="text" id="gTekst" placeholder="Bijv. Concept, Af, Gepubliceerd">
+                    <select id="gTekst">
+                        <option value="">- Geen -</option>
+                        <option value="Af">Af</option>
+                        <option value="Gepubliceerd">Gepubliceerd</option>
+                    </select>
                 </div>
 
-                <div class="form-group full-width">
+                <div class="form-group full-width" style="position: relative;">
                     <label><i class="fa-solid fa-link"></i> BoardGameGeek Link</label>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="gBgg" placeholder="https://boardgamegeek.com/boardgame/...">
@@ -424,23 +201,19 @@
                         </button>
                     </div>
                 </div>
-
-                <div class="modal-actions">
-                    <button class="btn btn-cancel" onclick="closeModal()">Annuleren</button>
-                    <button class="btn" onclick="saveGame()"><i class="fa-solid fa-save"></i> Opslaan</button>
-                </div>
+            </div>
+            <div style="text-align: right; margin-top: 15px; font-size: 13px; color: #888;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Wijzigingen worden automatisch opgeslagen bij het sluiten.
             </div>
         </div>
     </div>
 
 <script>
-    // NIEUWE LINK INGEVULD:
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzyMLVMBIwLUmLqFkiBn5BWs0b_btiOnj-L63ifH-2wsTGRMSTnt-8rFisFMGSEy-tG/exec"; 
     
-    
     let appData = { games: [], reviewers: [], episodes: [] };
+    let top10Episodes = [];
     
-    // Categorieën en hun statussen
     const categories = {
         "Reviewexemplaar": [
             { id: "Aangeboden", name: "Aangeboden", icon: "fa-handshake" },
@@ -456,6 +229,11 @@
         ]
     };
 
+    // Auto-save bij klikken naast de modal
+    document.getElementById('modal-overlay').addEventListener('mousedown', function(e) {
+        if (e.target === this) saveGame();
+    });
+
     window.onload = () => {
         if(localStorage.getItem('sot_token')) {
             showApp();
@@ -467,21 +245,14 @@
         const pwd = document.getElementById('pwdInput').value;
         const errorDiv = document.getElementById('login-error');
         errorDiv.innerText = "Controleren...";
-        
-        fetch(`${GAS_URL}?action=login&password=${encodeURIComponent(pwd)}`)
+        fetch(GAS_URL + "?action=login&password=" + encodeURIComponent(pwd))
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     localStorage.setItem('sot_token', data.token);
                     showApp();
                     fetchData();
-                } else {
-                    errorDiv.innerText = "Onjuist wachtwoord! Probeer het opnieuw.";
-                }
-            })
-            .catch(err => {
-                errorDiv.innerText = "Fout bij verbinden met server. Controleer de link of console.";
-                console.error(err);
+                } else errorDiv.innerText = "Onjuist wachtwoord! Probeer het opnieuw.";
             });
     }
 
@@ -494,33 +265,30 @@
         document.getElementById('loading').style.display = 'block';
         document.getElementById('kanban-board').style.display = 'none';
         
-        const token = localStorage.getItem('sot_token');
-        fetch(`${GAS_URL}?action=getData&token=${token}`)
+        fetch(GAS_URL + "?action=getData&token=" + localStorage.getItem('sot_token'))
             .then(res => res.json())
             .then(data => {
-                if(data.error) { 
-                    alert("Sessie verlopen of ongeldig."); 
-                    localStorage.clear(); 
-                    location.reload(); 
-                    return; 
-                }
+                if(data.error) { alert("Sessie verlopen."); localStorage.clear(); location.reload(); return; }
                 appData = data;
-                populateDropdowns();
+                
+                // Bereken Top 10 Toekomstige Afleveringen
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                top10Episodes = appData.episodes
+                    .sort((a,b) => new Date(a.date) - new Date(b.date))
+                    .filter(e => new Date(e.date) >= today)
+                    .slice(0, 10);
+                
+                populateReviewerDropdown();
                 renderBoard();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('kanban-board').style.display = 'block';
-            })
-            .catch(err => {
-                document.getElementById('loading').innerHTML = '<span style="color:red"><i class="fa-solid fa-triangle-exclamation"></i> Fout bij laden van gegevens. Bezoek even de Google Apps Script URL direct om rechten te checken.</span>';
-                console.error(err);
             });
     }
 
-    function populateDropdowns() {
+    function populateReviewerDropdown() {
         const revSelect = document.getElementById('filterReviewer');
         const modalRev = document.getElementById('gReviewer');
-        const modalAfl = document.getElementById('gAflevering');
-        
         const currentFilter = revSelect.value;
         
         revSelect.innerHTML = '<option value="">Alle Reviewers</option>';
@@ -530,13 +298,28 @@
             revSelect.innerHTML += `<option value="${r}">${r}</option>`;
             modalRev.innerHTML += `<option value="${r}">${r}</option>`;
         });
-        
         revSelect.value = currentFilter;
+    }
 
-        modalAfl.innerHTML = '<option value="">- Nog niet gepland -</option>';
-        appData.episodes.forEach(e => {
-            modalAfl.innerHTML += `<option value="${e.nr}">Afl ${e.nr} (${e.date})</option>`;
+    function populateEpisodeDropdown(currentAflNr) {
+        const aflSelect = document.getElementById('gAflevering');
+        let optionsHtml = '<option value="">- Nog niet gepland -</option>';
+        let foundCurrent = false;
+
+        top10Episodes.forEach(e => {
+            optionsHtml += `<option value="${e.nr}">Afl ${e.nr} (${e.date})</option>`;
+            if(e.nr == currentAflNr) foundCurrent = true;
         });
+
+        // Voeg de huidige toe als deze ontbreekt (oude/geplande aflevering > 10)
+        if (currentAflNr && !foundCurrent) {
+            let ep = appData.episodes.find(e => e.nr == currentAflNr);
+            if(ep) optionsHtml += `<option value="${ep.nr}">Afl ${ep.nr} (${ep.date})</option>`;
+            else optionsHtml += `<option value="${currentAflNr}">Afl ${currentAflNr}</option>`;
+        }
+        
+        aflSelect.innerHTML = optionsHtml;
+        aflSelect.value = currentAflNr || "";
     }
 
     function renderBoard() {
@@ -545,13 +328,13 @@
         const search = document.getElementById('searchInput').value.toLowerCase();
         const revFilter = document.getElementById('filterReviewer').value;
 
-        // Bouw de rijen op (gebruik makend van backticks voor schone HTML)
         Object.keys(categories).forEach(cat => {
             const rowDiv = document.createElement('div');
-            rowDiv.className = 'board-row';
+            // Zorg voor de css klassen 'cat-review' of 'cat-bezit' voor de kleuren
+            const catClass = cat === "Reviewexemplaar" ? "cat-review" : "cat-bezit";
+            rowDiv.className = `board-row ${catClass}`;
             
             const catIcon = cat === "Reviewexemplaar" ? "fa-hand-holding-box" : "fa-box-open";
-            
             rowDiv.innerHTML = `<h3><i class="fa-solid ${catIcon}"></i> ${cat}</h3><div class="board" id="board-${cat.replace(/\s/g, '')}"></div>`;
             boardContainer.appendChild(rowDiv);
             
@@ -570,9 +353,7 @@
                 catBoard.appendChild(colDiv);
 
                 Sortable.create(colDiv.querySelector('.task-list'), {
-                    group: 'kanban', 
-                    animation: 150,
-                    ghostClass: 'sortable-ghost',
+                    group: 'kanban', animation: 150, ghostClass: 'sortable-ghost',
                     onEnd: function (evt) {
                         const itemEl = evt.item;
                         const newStatus = evt.to.getAttribute('data-status');
@@ -582,7 +363,7 @@
                         if(game) game.status = newStatus;
                         updateCounts();
                         
-                        updateStatusInSheet(id, newStatus);
+                        fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', token: localStorage.getItem('sot_token'), id: id, status: newStatus }) });
                     }
                 });
             });
@@ -590,7 +371,6 @@
 
         let stats = {};
         let colCounts = {};
-        
         appData.reviewers.forEach(r => stats[r] = 0);
         Object.values(categories).flat().forEach(c => colCounts[c.id] = 0);
 
@@ -611,7 +391,6 @@
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
-                // Veilig HTML opbouwen met backticks ter voorkoming van syntax errors
                 let html = `<div class="card-title">${game.titel}</div>`;
                 if(game.uitgever) html += `<div class="card-pub"><i class="fa-regular fa-building"></i> ${game.uitgever}</div>`;
                 
@@ -622,17 +401,11 @@
                 }
                 
                 html += `<div class="card-meta">`;
-                if(game.reviewer) {
-                    html += `<span class="tag"><i class="fa-solid fa-user-astronaut"></i> ${game.reviewer}</span>`;
-                } else {
-                    html += `<span></span>`; 
-                }
+                if(game.reviewer) html += `<span class="tag"><i class="fa-solid fa-user-astronaut"></i> ${game.reviewer}</span>`;
+                else html += `<span></span>`; 
                 
-                if (game.afleveringNr) {
-                     html += `<span style="color: var(--primary); font-weight:bold;"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
-                } else if(game.deadline) {
-                     html += `<span><i class="fa-regular fa-clock"></i> ${game.deadline}</span>`;
-                }
+                if (game.afleveringNr) html += `<span style="font-weight:bold;"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
+                else if(game.deadline) html += `<span><i class="fa-regular fa-clock"></i> ${game.deadline}</span>`;
                 html += `</div>`;
                 
                 card.innerHTML = html;
@@ -642,12 +415,9 @@
 
         updateCounts(colCounts);
 
-        /* HIER ZAT DE FOUT: nu backticks (`) in plaats van dubbele aanhalingstekens (") */
         let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Actieve Reviewexemplaren:</strong> `;
         for(let r in stats) {
-            if(stats[r] > 0 || !revFilter) { 
-                statsHtml += `<span class="tag" style="margin-left: 10px;">${r}: ${stats[r]}</span> `;
-            }
+            if(stats[r] > 0 || !revFilter) statsHtml += `<span class="tag" style="margin-left: 10px;">${r}: ${stats[r]}</span> `;
         }
         document.getElementById('statsBar').innerHTML = statsHtml;
     }
@@ -656,10 +426,7 @@
         if(!counts) {
             Object.values(categories).flat().forEach(col => {
                 const list = document.getElementById(`col-${col.id}`);
-                if(list) {
-                    const count = list.querySelectorAll('.card').length;
-                    document.getElementById(`count-${col.id}`).innerText = count;
-                }
+                if(list) document.getElementById(`count-${col.id}`).innerText = list.querySelectorAll('.card').length;
             });
         } else {
             for(let id in counts) {
@@ -669,11 +436,17 @@
         }
     }
 
-    function updateStatusInSheet(id, status) {
-        fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'updateStatus', token: localStorage.getItem('sot_token'), id: id, status: status })
-        }).catch(err => console.error("Fout bij updaten status", err));
+    function setupTekstStatus(val) {
+        const select = document.getElementById('gTekst');
+        select.innerHTML = `
+            <option value="">- Geen -</option>
+            <option value="Af">Af</option>
+            <option value="Gepubliceerd">Gepubliceerd</option>
+        `;
+        if (val && !['', 'Af', 'Gepubliceerd'].includes(val)) {
+            select.innerHTML += `<option value="${val}">${val}</option>`;
+        }
+        select.value = val || "";
     }
 
     function editGame(id) {
@@ -687,9 +460,9 @@
         document.getElementById('gStatus').value = game.status;
         document.getElementById('gReviewer').value = game.reviewer;
         document.getElementById('gDeadline').value = game.deadline;
-        document.getElementById('gAflevering').value = game.afleveringNr;
+        populateEpisodeDropdown(game.afleveringNr);
         document.getElementById('gVerwacht').value = game.verwacht;
-        document.getElementById('gTekst').value = game.tekstStatus;
+        setupTekstStatus(game.tekstStatus);
         document.getElementById('gBgg').value = game.bggLink;
         
         document.getElementById('modal-overlay').style.display = 'flex';
@@ -703,25 +476,27 @@
         document.getElementById('gStatus').value = "Aangeboden";
         document.getElementById('gReviewer').value = "";
         document.getElementById('gDeadline').value = "";
-        document.getElementById('gAflevering').value = "";
+        populateEpisodeDropdown("");
         document.getElementById('gVerwacht').value = "";
-        document.getElementById('gTekst').value = "";
+        setupTekstStatus("");
         document.getElementById('gBgg').value = "";
         
         document.getElementById('modal-overlay').style.display = 'flex';
         document.getElementById('gTitel').focus();
     }
 
-    function closeModal() {
-        document.getElementById('modal-overlay').style.display = 'none';
-    }
-
     function saveGame() {
-        const btnSave = document.querySelector('.modal-actions button:last-child');
+        const titel = document.getElementById('gTitel').value.trim();
         
+        // Als titel leeg is (bijv. geklikt op toevoegen maar direct weggeklikt)
+        if(!titel) { 
+            document.getElementById('modal-overlay').style.display = 'none';
+            return; 
+        }
+
         const game = {
             id: document.getElementById('gId').value,
-            titel: document.getElementById('gTitel').value.trim(),
+            titel: titel,
             uitgever: document.getElementById('gUitgever').value,
             status: document.getElementById('gStatus').value,
             reviewer: document.getElementById('gReviewer').value,
@@ -732,52 +507,27 @@
             bggLink: document.getElementById('gBgg').value
         };
 
-        if(!game.titel) { 
-            alert("Titel is verplicht!"); 
-            document.getElementById('gTitel').focus();
-            return; 
-        }
-
-        btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Opslaan...';
-        btnSave.disabled = true;
-
+        // Sluit modal direct voor soepele gebruikerservaring
+        document.getElementById('modal-overlay').style.display = 'none';
+        
         fetch(GAS_URL, {
             method: 'POST',
             body: JSON.stringify({ action: 'saveGame', token: localStorage.getItem('sot_token'), game: game })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) { 
-                closeModal();
-                fetchData(); 
-            } else {
-                alert("Er ging iets mis bij het opslaan. Controleer de API.");
-            }
-        })
-        .catch(err => {
-            alert("Communicatiefout met Google Sheets. Zie console.");
-            console.error(err);
-        })
-        .finally(() => {
-            btnSave.innerHTML = '<i class="fa-solid fa-save"></i> Opslaan';
-            btnSave.disabled = false;
+        }).then(res => res.json()).then(data => {
+            if(data.success) fetchData(); // Herlaad op de achtergrond voor de nieuwste stats/kolommen
         });
     }
 
     function autoFetchBGG() {
         const titel = document.getElementById('gTitel').value;
-        if(!titel) {
-            alert("Vul eerst een titel in.");
-            return;
-        }
+        if(!titel) { alert("Vul eerst een titel in."); return; }
         
         const btn = document.querySelector('.fa-magnifying-glass').parentElement;
         const originalContent = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Zoeken...';
         btn.disabled = true;
         
-        const token = localStorage.getItem('sot_token');
-        fetch(`${GAS_URL}?action=fetchBGG&titel=${encodeURIComponent(titel)}&token=${token}`)
+        fetch(GAS_URL + "?action=fetchBGG&titel=" + encodeURIComponent(titel) + "&token=" + localStorage.getItem('sot_token'))
             .then(res => res.json())
             .then(data => {
                 if(data.link) {
@@ -785,16 +535,10 @@
                     const input = document.getElementById('gBgg');
                     input.style.backgroundColor = '#dcfce7';
                     setTimeout(() => input.style.backgroundColor = '', 1000);
-                }
-                else {
-                    alert("Geen BGG link gevonden voor deze titel. Je kunt hem eventueel handmatig toevoegen.");
-                }
+                } else alert("Geen BGG link gevonden voor deze titel.");
             })
             .catch(err => alert("Fout bij zoeken op BGG."))
-            .finally(() => {
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            });
+            .finally(() => { btn.innerHTML = originalContent; btn.disabled = false; });
     }
 </script>
 </body>
