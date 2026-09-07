@@ -254,6 +254,17 @@
         return `hsl(${Math.abs(hash % 360)}, 70%, 35%)`; 
     }
 
+    // Helper functie om datum mooi weer te geven (dd-mm-jjjj) zonder timestamps
+    function formatDisplayDate(val) {
+        if (!val) return "";
+        let datePart = val.split('T')[0]; // Haalt alles na de T (timestamp) weg
+        let parts = datePart.split('-');
+        if (parts.length === 3 && parts[0].length === 4) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; // Maak van jjjj-mm-dd -> dd-mm-jjjj
+        }
+        return datePart;
+    }
+
     document.getElementById('modal-overlay').addEventListener('mousedown', function(e) {
         if (e.target === this) saveAndClose();
     });
@@ -344,13 +355,13 @@
         let foundCurrent = false;
 
         top10Episodes.forEach(e => {
-            optionsHtml += `<option value="${e.nr}">Afl ${e.nr} (${e.date})</option>`;
+            optionsHtml += `<option value="${e.nr}">Afl ${e.nr} (${formatDisplayDate(e.date)})</option>`;
             if(e.nr == currentAflNr) foundCurrent = true;
         });
 
         if (currentAflNr && !foundCurrent) {
             let ep = appData.episodes.find(e => e.nr == currentAflNr);
-            if(ep) optionsHtml += `<option value="${ep.nr}">Afl ${ep.nr} (${ep.date})</option>`;
+            if(ep) optionsHtml += `<option value="${ep.nr}">Afl ${ep.nr} (${formatDisplayDate(ep.date)})</option>`;
             else optionsHtml += `<option value="${currentAflNr}">Afl ${currentAflNr}</option>`;
         }
         
@@ -428,7 +439,6 @@
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
-                // Iconen Rechtsboven
                 let iconsHtml = '<div class="card-icons">';
                 if (game.tekstStatus === 'Af') iconsHtml += `<i class="fa-solid fa-file-lines" style="color: #4ade80;" title="Tekst Af"></i>`;
                 if (game.tekstStatus === 'Gepubliceerd') iconsHtml += `<i class="fa-solid fa-globe" style="color: var(--blue);" title="Gepubliceerd"></i>`;
@@ -448,7 +458,7 @@
                 } else html += `<span></span>`; 
                 
                 if (game.afleveringNr) html += `<span style="font-weight:bold;"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
-                else if(game.deadline) html += `<span><i class="fa-regular fa-clock"></i> ${game.deadline}</span>`;
+                else if(game.deadline) html += `<span><i class="fa-regular fa-clock"></i> ${formatDisplayDate(game.deadline)}</span>`; // Datum fix
                 html += `</div>`;
                 
                 card.innerHTML = html;
@@ -461,7 +471,6 @@
             archiveSection.style.display = 'block';
             let archiveCount = 0;
             
-            // === SORTEER ARCHIEF SPELLEN ALFABETISCH A-Z ===
             const sortedArchive = [...appData.archiveGames].sort((a, b) => a.titel.toLowerCase().localeCompare(b.titel.toLowerCase()));
             
             sortedArchive.forEach(g => {
