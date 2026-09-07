@@ -48,11 +48,9 @@
         
         .cat-review h3 { color: var(--blue); border-bottom-color: var(--blue); }
         .cat-review .card { border-left-color: var(--blue); }
-        .cat-review .bgg-link { color: var(--blue); }
         
         .cat-bezit h3 { color: var(--primary); border-bottom-color: var(--primary); }
         .cat-bezit .card { border-left-color: var(--primary); }
-        .cat-bezit .bgg-link { color: var(--primary); }
         
         .board::-webkit-scrollbar { height: 8px; }
         .board::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
@@ -70,10 +68,13 @@
         .card-pub { font-size: 13px; color: var(--text-muted); margin-bottom: 10px;}
         .card-meta { font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); margin-top: 8px;}
         
+        /* Aangepaste SVG Iconen (BGG en Meeple) */
+        .bgg-icon { width: 18px; height: 18px; cursor: pointer; transition: filter 0.2s; vertical-align: middle; }
+        .bgg-icon:hover { filter: brightness(1.3) drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
+        .meeple-icon { width: 12px; height: 12px; vertical-align: middle; margin-right: 4px; filter: brightness(0) invert(1); }
+        
         /* Iconen Container rechtsboven */
         .card-icons { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; align-items: center; font-size: 16px; z-index: 10;}
-        .bgg-link { cursor: pointer; transition: filter 0.2s; }
-        .bgg-link:hover { filter: brightness(1.3); }
         .tag { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
 
         /* Archief Resultaten */
@@ -138,6 +139,7 @@
         
         <div id="kanban-board"></div>
         
+        <!-- Archief sectie -->
         <div id="archive-section">
             <h3 style="color: var(--text-muted); margin-bottom: 15px;"><i class="fa-solid fa-box-archive"></i> Resultaten uit het Overzicht Archief</h3>
             <div id="archive-results" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;"></div>
@@ -210,7 +212,7 @@
                 </div>
 
                 <div class="form-group full-width">
-                    <label><i class="fa-solid fa-link"></i> BoardGameGeek Link</label>
+                    <label><img src="BGG.svg" class="meeple-icon" style="width:14px; height:14px;" onerror="this.style.display='none'"> BoardGameGeek Link</label>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="gBgg" placeholder="https://boardgamegeek.com/boardgame/...">
                         <button class="btn" style="padding: 10px 15px;" onclick="autoFetchBGG()" title="Zoek automatisch op BGG op basis van titel">
@@ -249,7 +251,7 @@
     function stringToColor(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
-        return `hsl(${Math.abs(hash % 360)}, 70%, 35%)`; // Donkerdere, goed leesbare kleuren
+        return `hsl(${Math.abs(hash % 360)}, 70%, 35%)`; 
     }
 
     document.getElementById('modal-overlay').addEventListener('mousedown', function(e) {
@@ -260,7 +262,6 @@
         if(localStorage.getItem('sot_token')) { showApp(); fetchData(); }
     };
 
-    // Polling voor live updates
     setInterval(() => {
         if (document.getElementById('modal-overlay').style.display === 'flex') return;
         fetch(GAS_URL + "?action=getData&token=" + localStorage.getItem('sot_token'))
@@ -392,7 +393,7 @@
                 catBoard.appendChild(colDiv);
 
                 Sortable.create(colDiv.querySelector('.task-list'), {
-                    group: 'kanban', animation: 150, ghostClass: 'sortable-ghost', filter: ".bgg-link",
+                    group: 'kanban', animation: 150, ghostClass: 'sortable-ghost', filter: ".bgg-icon",
                     onEnd: function (evt) {
                         const itemEl = evt.item;
                         const newStatus = evt.to.getAttribute('data-status');
@@ -424,13 +425,13 @@
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
-                // === DE VERNIEUWDE ICONEN RECHTSBOVEN & KLIKBARE LINK ===
+                // Iconen Rechtsboven
                 let iconsHtml = '<div class="card-icons">';
                 if (game.tekstStatus === 'Af') iconsHtml += `<i class="fa-solid fa-file-lines" style="color: #4ade80;" title="Tekst Af"></i>`;
                 if (game.tekstStatus === 'Gepubliceerd') iconsHtml += `<i class="fa-solid fa-globe" style="color: var(--blue);" title="Gepubliceerd"></i>`;
                 
                 if(game.bggLink) {
-                    iconsHtml += `<i class="fa-solid fa-arrow-up-right-from-square bgg-link" title="Bekijk op BoardGameGeek" onclick="event.stopPropagation(); window.open('${game.bggLink}', '_blank');"></i>`;
+                    iconsHtml += `<img src="BGG.svg" class="bgg-icon" title="Bekijk op BoardGameGeek" onclick="event.stopPropagation(); window.open('${game.bggLink}', '_blank');" onerror="this.style.display='none'">`;
                 }
                 iconsHtml += '</div>';
 
@@ -440,7 +441,7 @@
                 html += `<div class="card-meta">`;
                 if(game.reviewer) {
                     const tagColor = stringToColor(game.reviewer);
-                    html += `<span class="tag" style="background-color: ${tagColor};"><i class="fa-solid fa-chess-pawn"></i> ${game.reviewer}</span>`;
+                    html += `<span class="tag" style="background-color: ${tagColor};"><img src="meeple.png" class="meeple-icon" onerror="this.style.display='none'"> ${game.reviewer}</span>`;
                 } else html += `<span></span>`; 
                 
                 if (game.afleveringNr) html += `<span style="font-weight:bold;"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
@@ -462,11 +463,17 @@
                 archiveCount++;
                 
                 const tagColor = stringToColor(g.reviewer);
+                const query = encodeURIComponent(g.titel.toLowerCase());
+                const archiveBggLink = "https://boardgamegeek.com/geeksearch.php?action=search&objecttype=boardgame&q=" + query;
+
                 archiveResults.innerHTML += `
                     <div class="archive-card">
-                        <div style="font-weight: bold; color: #fff; margin-bottom: 5px;">${g.titel}</div>
+                        <div style="font-weight: bold; color: #fff; margin-bottom: 5px; display:flex; justify-content:space-between;">
+                            ${g.titel}
+                            <img src="BGG.svg" class="bgg-icon" style="width:16px; height:16px;" onclick="window.open('${archiveBggLink}', '_blank');" title="Zoek op BGG" onerror="this.style.display='none'">
+                        </div>
                         <div style="font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
-                            <span class="tag" style="background-color: ${tagColor}; font-size: 10px;"><i class="fa-solid fa-chess-pawn"></i> ${g.reviewer}</span>
+                            <span class="tag" style="background-color: ${tagColor}; font-size: 10px;"><img src="meeple.png" class="meeple-icon" style="width:10px; height:10px;" onerror="this.style.display='none'"> ${g.reviewer}</span>
                             <span><i class="fa-solid fa-podcast"></i> Afl. ${g.afleveringNr || '?'}</span>
                         </div>
                     </div>
@@ -479,13 +486,13 @@
 
         updateCounts(colCounts);
 
-        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Totaal aantal Reviews (incl. Overzicht):</strong> `;
+        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Totaal aantal Reviews (incl. Archief):</strong> `;
         let sortedStats = Object.keys(appData.stats).sort((a,b) => appData.stats[b] - appData.stats[a]);
         
         sortedStats.forEach(r => {
             if(appData.stats[r] > 0 && (!revFilter || revFilter === r)) {
                 const tagColor = stringToColor(r);
-                statsHtml += `<span class="tag" style="margin-left: 10px; background-color: ${tagColor};">${r}: ${appData.stats[r]}</span> `;
+                statsHtml += `<span class="tag" style="margin-left: 10px; background-color: ${tagColor};"><img src="meeple.png" class="meeple-icon" style="width:10px; height:10px;" onerror="this.style.display='none'"> ${r}: ${appData.stats[r]}</span> `;
             }
         });
         document.getElementById('statsBar').innerHTML = statsHtml;
