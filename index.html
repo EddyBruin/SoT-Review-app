@@ -9,74 +9,331 @@
     <style>
         :root {
             --primary: #f37021; /* Spel op Tafel Oranje */
+            --primary-hover: #d95c14;
             --bg: #f4f6f8;
             --card-bg: #ffffff;
             --text: #333;
             --border: #e0e0e0;
+            --column-bg: #eef1f5;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: var(--text); }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            color: var(--text); 
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
         
         /* Login Scherm */
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        #login-screen input { padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--border); width: 250px; font-size: 16px; }
-        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;}
-        .btn:hover { background: #d95c14; }
+        #login-screen { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+        }
+        #login-screen h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        #login-screen img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        #login-screen input { 
+            padding: 12px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border); 
+            width: 250px; 
+            font-size: 16px; 
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .btn { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+        .btn:hover { background: var(--primary-hover); }
 
         /* Header */
-        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 20px;}
-        .logo-area { display: flex; align-items: center; gap: 15px; font-size: 24px; font-weight: bold; color: var(--primary); }
-        .controls { display: flex; gap: 15px; flex-wrap: wrap; align-items: center;}
-        .controls input, .controls select { padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: white; 
+            padding: 15px 30px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            border-radius: 12px; 
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* Voor mobiel */
+            gap: 15px;
+        }
+        .logo-area { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: var(--primary); 
+        }
+        .logo-area img {
+            height: 40px;
+        }
+        .controls { 
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+            align-items: center;
+        }
+        .controls input, .controls select { 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
         
         /* Stats */
-        .stats-bar { background: white; padding: 10px 20px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; display: flex; gap: 20px; overflow-x: auto; white-space: nowrap;}
+        .stats-bar { 
+            background: white; 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            font-size: 14px; 
+            display: flex; 
+            gap: 20px; 
+            overflow-x: auto; 
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
         
-        /* Kanban Board */
-        .board { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; }
-        .column { background: #eef1f5; min-width: 280px; width: 280px; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; }
-        .col-header { font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px;}
-        .col-category { font-size: 11px; color: #777; text-transform: uppercase; }
-        .task-list { flex-grow: 1; min-height: 100px; display: flex; flex-direction: column; gap: 10px; }
+        /* Kanban Board - Rijen en Kolommen */
+        .board-row { margin-bottom: 40px; }
+        .board-row h3 { 
+            color: var(--primary); 
+            border-bottom: 2px solid var(--primary); 
+            padding-bottom: 8px; 
+            margin-bottom: 20px; 
+            font-size: 22px;
+            display: inline-block;
+        }
+        .board { 
+            display: flex; 
+            gap: 20px; 
+            overflow-x: auto; 
+            padding-bottom: 15px; 
+            min-height: 200px;
+        }
+        
+        /* Scrollbar styling voor het bord */
+        .board::-webkit-scrollbar { height: 8px; }
+        .board::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .board::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .board::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        .column { 
+            background: var(--column-bg); 
+            min-width: 300px; 
+            width: 300px; 
+            border-radius: 12px; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            border: 1px solid #e0e5ec;
+        }
+        .col-header { 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            font-size: 15px; 
+            text-transform: uppercase; 
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-list { 
+            flex-grow: 1; 
+            min-height: 100px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
         
         /* Cards */
-        .card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; position: relative; border-left: 4px solid var(--primary); transition: transform 0.1s;}
-        .card:hover { transform: translateY(-2px); }
-        .card-title { font-weight: bold; margin-bottom: 5px; font-size: 15px;}
-        .card-pub { font-size: 12px; color: #666; margin-bottom: 8px;}
-        .card-meta { font-size: 12px; display: flex; justify-content: space-between; color: #444; }
-        .tag { background: #eee; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;}
-        .bgg-link { position: absolute; top: 15px; right: 15px; color: #ff5100; font-size: 16px;}
+        .card { 
+            background: var(--card-bg); 
+            padding: 15px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08); 
+            cursor: pointer; 
+            position: relative; 
+            border-left: 5px solid var(--primary); 
+            transition: all 0.2s ease;
+        }
+        .card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .card-title { 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+            font-size: 16px;
+            color: #222;
+            padding-right: 25px; /* Ruimte voor BGG link */
+        }
+        .card-pub { 
+            font-size: 13px; 
+            color: #666; 
+            margin-bottom: 10px;
+        }
+        .card-meta { 
+            font-size: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            color: #555; 
+            margin-top: 8px;
+        }
+        .tag { 
+            background: #e2e8f0; 
+            color: #475569;
+            padding: 4px 10px; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            font-weight: bold;
+        }
+        .bgg-link { 
+            position: absolute; 
+            top: 15px; 
+            right: 15px; 
+            color: var(--primary); 
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        .bgg-link:hover { color: var(--primary-hover); }
 
-        /* Modal */
-        #modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .modal h2 { margin-top: 0; color: var(--primary); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
-        .modal-actions { display: flex; justify-content: space-between; margin-top: 20px; }
+        /* Modal / Pop-up */
+        #modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(0,0,0,0.6); 
+            z-index: 1000; 
+            align-items: center; 
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px; 
+            width: 90%; 
+            max-width: 650px; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal h2 { 
+            margin-top: 0; 
+            color: var(--primary); 
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .modal-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+        .form-group { margin-bottom: 5px; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-group label { 
+            display: block; 
+            font-size: 13px; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            color: #444;
+        }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(243, 112, 33, 0.2);
+        }
+        .modal-actions { 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 15px;
+            margin-top: 25px; 
+            grid-column: span 2; 
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+        .btn-cancel {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        .btn-cancel:hover { background: #e2e8f0; }
         
-        #loading { display: none; text-align: center; padding: 20px; font-weight: bold; color: var(--primary); }
+        #loading { 
+            display: none; 
+            text-align: center; 
+            padding: 30px; 
+            font-weight: bold; 
+            color: var(--primary); 
+            font-size: 18px;
+        }
+
+        /* Mobiele optimalisatie */
+        @media (max-width: 768px) {
+            .modal-grid { grid-template-columns: 1fr; gap: 15px; }
+            .form-group.full-width { grid-column: span 1; }
+            .modal-actions { grid-column: span 1; }
+            header { flex-direction: column; align-items: stretch; }
+            .controls { justify-content: space-between; }
+            .controls input, .controls select, .controls button { width: 100%; }
+        }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <h1 style="color: var(--primary);">Spel op Tafel</h1>
-        <p>Voer het wachtwoord in om door te gaan</p>
-        <input type="password" id="pwdInput" placeholder="Wachtwoord">
-        <button class="btn" onclick="login()">Inloggen</button>
-        <div id="login-error" style="color: red; margin-top: 10px;"></div>
+        <!-- Spel op Tafel Logo voor inlogscherm -->
+        <img src="https://www.speloptafel.nl/wp-content/uploads/2023/11/cropped-Logo-SoT.png" alt="Spel op Tafel Logo">
+        <p style="color: #666; margin-bottom: 20px;">Review Management Systeem</p>
+        <input type="password" id="pwdInput" placeholder="Wachtwoord invoeren..." onkeypress="if(event.key === 'Enter') login()">
+        <button class="btn" onclick="login()">Inloggen <i class="fa-solid fa-arrow-right"></i></button>
+        <div id="login-error" style="color: #dc2626; margin-top: 15px; font-weight: bold;"></div>
     </div>
 
     <div id="app-screen" style="display: none;" class="container">
         <header>
             <div class="logo-area">
-                <i class="fa-solid fa-dice-d20"></i> Review Overzicht
+                <img src="https://www.speloptafel.nl/wp-content/uploads/2023/11/cropped-Logo-SoT.png" alt="Logo">
+                Review Kanban
             </div>
             <div class="controls">
-                <input type="text" id="searchInput" placeholder="Zoek op titel..." onkeyup="renderBoard()">
+                <div style="position: relative;">
+                    <i class="fa-solid fa-search" style="position: absolute; left: 10px; top: 12px; color: #999;"></i>
+                    <input type="text" id="searchInput" placeholder="Zoek spel..." onkeyup="renderBoard()" style="padding-left: 35px; width: 200px;">
+                </div>
                 <select id="filterReviewer" onchange="renderBoard()">
                     <option value="">Alle Reviewers</option>
                 </select>
@@ -84,86 +341,112 @@
             </div>
         </header>
 
-        <div class="stats-bar" id="statsBar">Laden...</div>
-        <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Gegevens ophalen uit Google Sheets...</div>
+        <div class="stats-bar" id="statsBar">Statistieken laden...</div>
+        <div id="loading"><i class="fa-solid fa-dice fa-spin"></i> Gegevens ophalen uit Google Sheets...</div>
         
-        <div class="board" id="kanban-board">
-            <!-- Columns generated via JS -->
+        <div id="kanban-board">
+            <!-- Kolommen worden dynamisch in rijen opgebouwd in Javascript -->
         </div>
     </div>
 
     <div id="modal-overlay">
         <div class="modal">
-            <h2 id="modalTitle">Spel Toevoegen/Bewerken</h2>
+            <h2 id="modalTitle"><i class="fa-solid fa-pen-to-square"></i> Spel Toevoegen/Bewerken</h2>
             <input type="hidden" id="gId">
-            <div class="form-group">
-                <label>Titel</label>
-                <input type="text" id="gTitel" required>
-            </div>
-            <div class="form-group">
-                <label>Uitgever</label>
-                <input type="text" id="gUitgever">
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select id="gStatus">
-                    <optgroup label="Reviewexemplaar">
-                        <option value="Aangeboden">Aangeboden</option>
-                        <option value="Toegekend">Toegekend</option>
-                        <option value="Aangevraagd">Aangevraagd</option>
-                        <option value="Opgestuurd">Opgestuurd</option>
-                    </optgroup>
-                    <optgroup label="In bezit">
-                        <option value="Nieuw">Nieuw</option>
-                        <option value="Gepland">Gepland</option>
-                        <option value="Opgenomen">Opgenomen</option>
-                        <option value="Uitgezonden">Uitgezonden</option>
-                    </optgroup>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Reviewer</label>
-                <select id="gReviewer"><option value="">- Geen -</option></select>
-            </div>
-            <div class="form-group">
-                <label><i class="fa-regular fa-calendar"></i> Deadline (Optioneel)</label>
-                <input type="date" id="gDeadline">
-            </div>
-            <div class="form-group">
-                <label>Podcast Aflevering</label>
-                <select id="gAflevering"><option value="">- Geen -</option></select>
-            </div>
-            <div class="form-group">
-                <label>BGG Link</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="gBgg">
-                    <button class="btn" style="padding: 8px;" onclick="autoFetchBGG()" title="Zoek automatisch op BGG"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <div class="modal-grid">
+                <div class="form-group full-width">
+                    <label>Titel Spel *</label>
+                    <input type="text" id="gTitel" required placeholder="Naam van het bordspel">
                 </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" style="background:#888;" onclick="closeModal()">Annuleren</button>
-                <button class="btn" onclick="saveGame()">Opslaan</button>
+                
+                <div class="form-group">
+                    <label>Uitgever</label>
+                    <input type="text" id="gUitgever" placeholder="Bijv. 999 Games, White Goblin">
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="gStatus">
+                        <optgroup label="Reviewexemplaar">
+                            <option value="Aangeboden">Aangeboden</option>
+                            <option value="Toegekend">Toegekend</option>
+                            <option value="Aangevraagd">Aangevraagd</option>
+                            <option value="Opgestuurd">Opgestuurd</option>
+                        </optgroup>
+                        <optgroup label="In bezit">
+                            <option value="Nieuw">Nieuw</option>
+                            <option value="Gepland">Gepland</option>
+                            <option value="Opgenomen">Opgenomen</option>
+                            <option value="Uitgezonden">Uitgezonden</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Reviewer</label>
+                    <select id="gReviewer"><option value="">- Geen toegewezen -</option></select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Podcast Aflevering</label>
+                    <select id="gAflevering"><option value="">- Nog niet gepland -</option></select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-regular fa-calendar-xmark"></i> Deadline (Optioneel)</label>
+                    <input type="date" id="gDeadline">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-truck"></i> Verwacht op / Track & Trace</label>
+                    <input type="text" id="gVerwacht" placeholder="Datum of link">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-file-lines"></i> Tekst Status</label>
+                    <input type="text" id="gTekst" placeholder="Bijv. Concept, Af, Gepubliceerd">
+                </div>
+
+                <div class="form-group full-width">
+                    <label><i class="fa-solid fa-link"></i> BoardGameGeek Link</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="gBgg" placeholder="https://boardgamegeek.com/boardgame/...">
+                        <button class="btn" style="padding: 10px 15px;" onclick="autoFetchBGG()" title="Zoek automatisch op BGG op basis van titel">
+                            <i class="fa-solid fa-magnifying-glass"></i> Zoek BGG
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-cancel" onclick="closeModal()">Annuleren</button>
+                    <button class="btn" onclick="saveGame()"><i class="fa-solid fa-save"></i> Opslaan</button>
+                </div>
             </div>
         </div>
     </div>
 
 <script>
-    // === VUL HIER JE GOOGLE APPS SCRIPT URL IN ===
+    // === DE GOOGLE APPS SCRIPT URL ===
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxQsDzuaOAiBFtj0o69HiRhVaiLt2cnUVIy7JVDEF4ADBU9beidFkGdRbkD8MvXjmKe/exec"; 
     
     let appData = { games: [], reviewers: [], episodes: [] };
-    const columns = [
-        { id: "Aangeboden", name: "Aangeboden", cat: "Reviewexemplaar" },
-        { id: "Toegekend", name: "Toegekend", cat: "Reviewexemplaar" },
-        { id: "Aangevraagd", name: "Aangevraagd", cat: "Reviewexemplaar" },
-        { id: "Opgestuurd", name: "Opgestuurd", cat: "Reviewexemplaar" },
-        { id: "Nieuw", name: "Nieuw", cat: "In bezit" },
-        { id: "Gepland", name: "Gepland", cat: "In bezit" },
-        { id: "Opgenomen", name: "Opgenomen", cat: "In bezit" },
-        { id: "Uitgezonden", name: "Uitgezonden", cat: "In bezit" }
-    ];
+    
+    // Categorieën en hun statussen voor het opbouwen van de rijen
+    const categories = {
+        "Reviewexemplaar": [
+            { id: "Aangeboden", name: "Aangeboden", icon: "fa-handshake" },
+            { id: "Toegekend", name: "Toegekend", icon: "fa-user-check" },
+            { id: "Aangevraagd", name: "Aangevraagd", icon: "fa-envelope-open-text" },
+            { id: "Opgestuurd", name: "Opgestuurd", icon: "fa-box" }
+        ],
+        "In bezit": [
+            { id: "Nieuw", name: "Nieuw / Binnengekomen", icon: "fa-door-open" },
+            { id: "Gepland", name: "Gepland voor Podcast", icon: "fa-calendar-check" },
+            { id: "Opgenomen", name: "Opgenomen", icon: "fa-microphone" },
+            { id: "Uitgezonden", name: "Uitgezonden", icon: "fa-broadcast-tower" }
+        ]
+    };
 
-    // Auth Check on load
     window.onload = () => {
         if(localStorage.getItem('sot_token')) {
             showApp();
@@ -173,6 +456,9 @@
 
     function login() {
         const pwd = document.getElementById('pwdInput').value;
+        const errorDiv = document.getElementById('login-error');
+        errorDiv.innerText = "Controleren...";
+        
         fetch(GAS_URL + "?action=login&password=" + encodeURIComponent(pwd))
             .then(res => res.json())
             .then(data => {
@@ -181,8 +467,11 @@
                     showApp();
                     fetchData();
                 } else {
-                    document.getElementById('login-error').innerText = "Onjuist wachtwoord!";
+                    errorDiv.innerText = "Onjuist wachtwoord! Probeer het opnieuw.";
                 }
+            })
+            .catch(err => {
+                errorDiv.innerText = "Fout bij verbinden met server.";
             });
     }
 
@@ -193,14 +482,25 @@
 
     function fetchData() {
         document.getElementById('loading').style.display = 'block';
+        document.getElementById('kanban-board').style.display = 'none';
+        
         fetch(GAS_URL + "?action=getData&token=" + localStorage.getItem('sot_token'))
             .then(res => res.json())
             .then(data => {
-                if(data.error) { alert("Sessie verlopen."); localStorage.clear(); location.reload(); return; }
+                if(data.error) { 
+                    alert("Sessie verlopen of ongeldig."); 
+                    localStorage.clear(); 
+                    location.reload(); 
+                    return; 
+                }
                 appData = data;
                 populateDropdowns();
                 renderBoard();
                 document.getElementById('loading').style.display = 'none';
+                document.getElementById('kanban-board').style.display = 'block';
+            })
+            .catch(err => {
+                document.getElementById('loading').innerHTML = '<span style="color:red"><i class="fa-solid fa-triangle-exclamation"></i> Fout bij laden van gegevens. Controleer de URL of je verbinding.</span>';
             });
     }
 
@@ -209,104 +509,179 @@
         const modalRev = document.getElementById('gReviewer');
         const modalAfl = document.getElementById('gAflevering');
         
+        // Behoud huidige selectie als die er is
+        const currentFilter = revSelect.value;
+        
         revSelect.innerHTML = '<option value="">Alle Reviewers</option>';
-        modalRev.innerHTML = '<option value="">- Geen -</option>';
+        modalRev.innerHTML = '<option value="">- Geen toegewezen -</option>';
+        
         appData.reviewers.forEach(r => {
             revSelect.innerHTML += `<option value="${r}">${r}</option>`;
             modalRev.innerHTML += `<option value="${r}">${r}</option>`;
         });
+        
+        revSelect.value = currentFilter; // Zet filter terug
 
-        modalAfl.innerHTML = '<option value="">- Geen -</option>';
+        modalAfl.innerHTML = '<option value="">- Nog niet gepland -</option>';
         appData.episodes.forEach(e => {
-            modalAfl.innerHTML += `<option value="${e.nr}" data-date="${e.date}">Afl ${e.nr} (${e.date})</option>`;
+            modalAfl.innerHTML += `<option value="${e.nr}">Afl ${e.nr} (${e.date})</option>`;
         });
     }
 
     function renderBoard() {
-        const board = document.getElementById('kanban-board');
-        board.innerHTML = '';
+        const boardContainer = document.getElementById('kanban-board');
+        boardContainer.innerHTML = '';
         const search = document.getElementById('searchInput').value.toLowerCase();
         const revFilter = document.getElementById('filterReviewer').value;
 
-        // Render Columns
-        columns.forEach(col => {
-            const colDiv = document.createElement('div');
-            colDiv.className = 'column';
-            colDiv.innerHTML = `
-                <div class="col-header">
-                    ${col.name} <span class="col-category">${col.cat}</span>
-                </div>
-                <div class="task-list" data-status="${col.id}" id="col-${col.id}"></div>
-            `;
-            board.appendChild(colDiv);
+        // Bouw de rijen op (Reviewexemplaar vs In Bezit)
+        Object.keys(categories).forEach(cat => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'board-row';
+            
+            // Pas icoon aan o.b.v categorie
+            const catIcon = cat === "Reviewexemplaar" ? "fa-hand-holding-box" : "fa-box-open";
+            
+            rowDiv.innerHTML = `<h3><i class="fa-solid ${catIcon}"></i> ${cat}</h3><div class="board" id="board-${cat.replace(/\s/g, '')}"></div>`;
+            boardContainer.appendChild(rowDiv);
+            
+            const catBoard = rowDiv.querySelector('.board');
+            
+            // Bouw de kolommen binnen deze rij
+            categories[cat].forEach(col => {
+                const colDiv = document.createElement('div');
+                colDiv.className = 'column';
+                colDiv.innerHTML = `
+                    <div class="col-header">
+                        <span><i class="fa-solid ${col.icon}"></i> ${col.name}</span>
+                        <span class="count-badge" id="count-${col.id}">0</span>
+                    </div>
+                    <div class="task-list" data-status="${col.id}" id="col-${col.id}"></div>
+                `;
+                catBoard.appendChild(colDiv);
 
-            // Init Drag & Drop (Sortable)
-            Sortable.create(colDiv.querySelector('.task-list'), {
-                group: 'kanban',
-                animation: 150,
-                onEnd: function (evt) {
-                    const itemEl = evt.item;
-                    const newStatus = evt.to.getAttribute('data-status');
-                    const id = itemEl.getAttribute('data-id');
-                    updateStatusInSheet(id, newStatus);
-                }
+                // Maak de lijst sleepbaar
+                Sortable.create(colDiv.querySelector('.task-list'), {
+                    group: 'kanban', 
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    onEnd: function (evt) {
+                        const itemEl = evt.item;
+                        const newStatus = evt.to.getAttribute('data-status');
+                        const id = itemEl.getAttribute('data-id');
+                        
+                        // Update status lokaal en visueel direct verwerken
+                        const game = appData.games.find(g => g.id === id);
+                        if(game) game.status = newStatus;
+                        updateCounts();
+                        
+                        // Stuur naar backend
+                        updateStatusInSheet(id, newStatus);
+                    }
+                });
             });
         });
 
-        // Filter and Render Cards
+        // Plaats de kaartjes en bereken stats
         let stats = {};
+        let colCounts = {};
+        
         appData.reviewers.forEach(r => stats[r] = 0);
+        
+        // Initialiseer tellers
+        Object.values(categories).flat().forEach(c => colCounts[c.id] = 0);
 
         appData.games.forEach(game => {
-            // Calculate Stats (only active games)
+            // Tel voor reviewer stats (alleen actieve)
             if (game.reviewer && stats[game.reviewer] !== undefined && !['Opgenomen', 'Uitgezonden'].includes(game.status)) {
                 stats[game.reviewer]++;
             }
 
+            // Zoekfilters toepassen
             if (search && !game.titel.toLowerCase().includes(search)) return;
             if (revFilter && game.reviewer !== revFilter) return;
 
             const list = document.getElementById(`col-${game.status}`);
             if (list) {
+                colCounts[game.status]++; // Verhoog teller voor deze kolom
+                
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
                 let html = `<div class="card-title">${game.titel}</div>`;
-                if(game.uitgever) html += `<div class="card-pub">${game.uitgever}</div>`;
-                if(game.bggLink) html += `<a href="${game.bggLink}" target="_blank" class="bgg-link" onclick="event.stopPropagation()"><i class="fa-solid fa-link"></i></a>`;
+                if(game.uitgever) html += `<div class="card-pub"><i class="fa-regular fa-building"></i> ${game.uitgever}</div>`;
+                
+                if(game.bggLink) {
+                    html += `<a href="${game.bggLink}" target="_blank" class="bgg-link" onclick="event.stopPropagation()" title="Bekijk op BoardGameGeek">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                             </a>`;
+                }
+                
                 html += `<div class="card-meta">`;
-                if(game.reviewer) html += `<span class="tag">${game.reviewer}</span>`;
-                if(game.deadline) html += `<span><i class="fa-regular fa-clock"></i> ${game.deadline}</span>`;
+                if(game.reviewer) {
+                    html += `<span class="tag"><i class="fa-solid fa-user-astronaut"></i> ${game.reviewer}</span>`;
+                } else {
+                    html += `<span></span>`; // Spacer
+                }
+                
+                // Toon Aflevering als die gepland is, anders deadline
+                if (game.afleveringNr) {
+                     html += `<span style="color: var(--primary); font-weight:bold;"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
+                } else if(game.deadline) {
+                     html += `<span><i class="fa-regular fa-clock"></i> ${game.deadline}</span>`;
+                }
                 html += `</div>`;
+                
                 card.innerHTML = html;
                 list.appendChild(card);
             }
         });
 
-        // Render Stats
-        let statsHtml = "<strong>Actieve Reviewexemplaren:</strong> ";
+        // Update de kolom tellers visueel
+        updateCounts(colCounts);
+
+        // Update de statistieken balk
+        let statsHtml = "<strong><i class="fa-solid fa-chart-pie"></i> Actieve Reviewexemplaren:</strong> ";
         for(let r in stats) {
-            statsHtml += `<span class="tag">${r}: ${stats[r]}</span> `;
+            if(stats[r] > 0 || !revFilter) { // Toon alleen reviewers met >0 tenzij gefilterd
+                statsHtml += `<span class="tag" style="margin-left: 10px;">${r}: ${stats[r]}</span> `;
+            }
         }
         document.getElementById('statsBar').innerHTML = statsHtml;
     }
 
+    function updateCounts(counts) {
+        // Als er geen counts worden meegegeven (bij drag&drop), tel dan zelf de DOM elementen
+        if(!counts) {
+            Object.values(categories).flat().forEach(col => {
+                const list = document.getElementById(`col-${col.id}`);
+                if(list) {
+                    const count = list.querySelectorAll('.card').length;
+                    document.getElementById(`count-${col.id}`).innerText = count;
+                }
+            });
+        } else {
+            for(let id in counts) {
+                const el = document.getElementById(`count-${id}`);
+                if(el) el.innerText = counts[id];
+            }
+        }
+    }
+
     function updateStatusInSheet(id, status) {
-        const game = appData.games.find(g => g.id === id);
-        if(game) game.status = status;
-        
         fetch(GAS_URL, {
             method: 'POST',
             body: JSON.stringify({ action: 'updateStatus', token: localStorage.getItem('sot_token'), id: id, status: status })
-        }); // Fire and forget for speed
+        });
     }
 
     function editGame(id) {
         const game = appData.games.find(g => g.id === id);
         if(!game) return;
-        document.getElementById('modalTitle').innerText = "Spel Bewerken";
+        
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Spel Bewerken';
         document.getElementById('gId').value = game.id;
         document.getElementById('gTitel').value = game.titel;
         document.getElementById('gUitgever').value = game.uitgever;
@@ -314,12 +689,15 @@
         document.getElementById('gReviewer').value = game.reviewer;
         document.getElementById('gDeadline').value = game.deadline;
         document.getElementById('gAflevering').value = game.afleveringNr;
+        document.getElementById('gVerwacht').value = game.verwacht;
+        document.getElementById('gTekst').value = game.tekstStatus;
         document.getElementById('gBgg').value = game.bggLink;
+        
         document.getElementById('modal-overlay').style.display = 'flex';
     }
 
     function openModal() {
-        document.getElementById('modalTitle').innerText = "Spel Toevoegen";
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-square-plus"></i> Nieuw Spel Toevoegen';
         document.getElementById('gId').value = "";
         document.getElementById('gTitel').value = "";
         document.getElementById('gUitgever').value = "";
@@ -327,8 +705,12 @@
         document.getElementById('gReviewer').value = "";
         document.getElementById('gDeadline').value = "";
         document.getElementById('gAflevering').value = "";
+        document.getElementById('gVerwacht').value = "";
+        document.getElementById('gTekst').value = "";
         document.getElementById('gBgg').value = "";
+        
         document.getElementById('modal-overlay').style.display = 'flex';
+        document.getElementById('gTitel').focus();
     }
 
     function closeModal() {
@@ -336,25 +718,30 @@
     }
 
     function saveGame() {
-        const afleveringSelect = document.getElementById('gAflevering');
-        const afleveringDatum = afleveringSelect.options[afleveringSelect.selectedIndex].getAttribute('data-date') || "";
-
+        const btnSave = document.querySelector('.modal-actions button:last-child');
+        
         const game = {
             id: document.getElementById('gId').value,
-            titel: document.getElementById('gTitel').value,
+            titel: document.getElementById('gTitel').value.trim(),
             uitgever: document.getElementById('gUitgever').value,
             status: document.getElementById('gStatus').value,
             reviewer: document.getElementById('gReviewer').value,
             deadline: document.getElementById('gDeadline').value,
+            verwacht: document.getElementById('gVerwacht').value,
             afleveringNr: document.getElementById('gAflevering').value,
-            afleveringDatum: afleveringDatum,
+            tekstStatus: document.getElementById('gTekst').value,
             bggLink: document.getElementById('gBgg').value
         };
 
-        if(!game.titel) { alert("Titel is verplicht!"); return; }
+        if(!game.titel) { 
+            alert("Titel is verplicht!"); 
+            document.getElementById('gTitel').focus();
+            return; 
+        }
 
-        closeModal();
-        document.getElementById('loading').style.display = 'block';
+        // Visuele feedback dat hij opslaat
+        btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Opslaan...';
+        btnSave.disabled = true;
 
         fetch(GAS_URL, {
             method: 'POST',
@@ -362,22 +749,49 @@
         })
         .then(res => res.json())
         .then(data => {
-            if(data.success) { fetchData(); } // Ververs data om OVERZICHT ook door te rekenen
+            if(data.success) { 
+                closeModal();
+                fetchData(); // Herlaad alles vers van de sheet
+            } else {
+                alert("Er ging iets mis bij het opslaan.");
+            }
+        })
+        .finally(() => {
+            btnSave.innerHTML = '<i class="fa-solid fa-save"></i> Opslaan';
+            btnSave.disabled = false;
         });
     }
 
     function autoFetchBGG() {
         const titel = document.getElementById('gTitel').value;
-        if(!titel) return;
+        if(!titel) {
+            alert("Vul eerst een titel in.");
+            return;
+        }
+        
         const btn = document.querySelector('.fa-magnifying-glass').parentElement;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Zoeken...';
+        btn.disabled = true;
         
         fetch(GAS_URL + "?action=fetchBGG&titel=" + encodeURIComponent(titel) + "&token=" + localStorage.getItem('sot_token'))
             .then(res => res.json())
             .then(data => {
-                if(data.link) document.getElementById('gBgg').value = data.link;
-                else alert("Geen BGG link gevonden voor deze titel.");
-                btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
+                if(data.link) {
+                    document.getElementById('gBgg').value = data.link;
+                    // Knipper groen als feedback
+                    const input = document.getElementById('gBgg');
+                    input.style.backgroundColor = '#dcfce7';
+                    setTimeout(() => input.style.backgroundColor = '', 1000);
+                }
+                else {
+                    alert("Geen BGG link gevonden voor deze titel. Je kunt hem eventueel handmatig toevoegen.");
+                }
+            })
+            .catch(err => alert("Fout bij zoeken op BGG."))
+            .finally(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
             });
     }
 </script>
