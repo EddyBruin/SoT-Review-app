@@ -412,7 +412,10 @@
         let colCounts = {};
         Object.values(categories).flat().forEach(c => colCounts[c.id] = 0);
 
-        appData.games.forEach(game => {
+        // === SORTEER ACTIEVE SPELLEN ALFABETISCH A-Z ===
+        const sortedGames = [...appData.games].sort((a, b) => a.titel.toLowerCase().localeCompare(b.titel.toLowerCase()));
+
+        sortedGames.forEach(game => {
             if (search && !game.titel.toLowerCase().includes(search)) return;
             if (revFilter && game.reviewer !== revFilter) return;
 
@@ -457,7 +460,11 @@
         if (search || revFilter) {
             archiveSection.style.display = 'block';
             let archiveCount = 0;
-            appData.archiveGames.forEach(g => {
+            
+            // === SORTEER ARCHIEF SPELLEN ALFABETISCH A-Z ===
+            const sortedArchive = [...appData.archiveGames].sort((a, b) => a.titel.toLowerCase().localeCompare(b.titel.toLowerCase()));
+            
+            sortedArchive.forEach(g => {
                 if (search && !g.titel.toLowerCase().includes(search)) return;
                 if (revFilter && g.reviewer !== revFilter) return;
                 archiveCount++;
