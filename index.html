@@ -71,8 +71,8 @@
         .card-meta { font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); margin-top: 8px;}
         
         /* Iconen Container rechtsboven */
-        .card-icons { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; align-items: center; font-size: 16px; z-index: 10;}
-        .bgg-link { transition: filter 0.2s; }
+        .card-icons { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; align-items: center; font-size: 16px; z-index: 10;}
+        .bgg-link { cursor: pointer; transition: filter 0.2s; }
         .bgg-link:hover { filter: brightness(1.3); }
         .tag { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
 
@@ -138,14 +138,12 @@
         
         <div id="kanban-board"></div>
         
-        <!-- Archief sectie (wordt alleen getoond bij zoeken) -->
         <div id="archive-section">
             <h3 style="color: var(--text-muted); margin-bottom: 15px;"><i class="fa-solid fa-box-archive"></i> Resultaten uit het Overzicht Archief</h3>
             <div id="archive-results" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;"></div>
         </div>
     </div>
 
-    <!-- Toast Melding voor Autosave -->
     <div id="toast" class="auto-save-toast"><i class="fa-solid fa-check"></i> Opgeslagen!</div>
 
     <div id="modal-overlay">
@@ -248,14 +246,12 @@
         ]
     };
 
-    // Genereer vaste, mooie kleurtjes per reviewer gebaseerd op hun naam
     function stringToColor(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
-        return `hsl(${Math.abs(hash % 360)}, 70%, 45%)`;
+        return `hsl(${Math.abs(hash % 360)}, 70%, 35%)`; // Donkerdere, goed leesbare kleuren
     }
 
-    // Auto-save bij klikken naast de modal
     document.getElementById('modal-overlay').addEventListener('mousedown', function(e) {
         if (e.target === this) saveAndClose();
     });
@@ -264,10 +260,9 @@
         if(localStorage.getItem('sot_token')) { showApp(); fetchData(); }
     };
 
-    // 15 seconden Polling voor actuele data!
+    // Polling voor live updates
     setInterval(() => {
-        if (document.getElementById('modal-overlay').style.display === 'flex') return; // Niet storen tijdens bewerken
-        
+        if (document.getElementById('modal-overlay').style.display === 'flex') return;
         fetch(GAS_URL + "?action=getData&token=" + localStorage.getItem('sot_token'))
             .then(res => res.json())
             .then(data => {
@@ -277,7 +272,7 @@
                 if (newDataStr !== oldDataStr) {
                     appData = data;
                     processDataRules();
-                    renderBoard(); // Pas vernieuwen als er daadwerkelijk een aanpassing was
+                    renderBoard(); 
                 }
             }).catch(e => console.log('Silent poll error'));
     }, 15000);
@@ -373,7 +368,6 @@
         const search = document.getElementById('searchInput').value.toLowerCase();
         const revFilter = document.getElementById('filterReviewer').value;
 
-        // Bouw Kanban Bord Rijen
         Object.keys(categories).forEach(cat => {
             const rowDiv = document.createElement('div');
             const catClass = cat === "Reviewexemplaar" ? "cat-review" : "cat-bezit";
@@ -398,7 +392,7 @@
                 catBoard.appendChild(colDiv);
 
                 Sortable.create(colDiv.querySelector('.task-list'), {
-                    group: 'kanban', animation: 150, ghostClass: 'sortable-ghost',
+                    group: 'kanban', animation: 150, ghostClass: 'sortable-ghost', filter: ".bgg-link",
                     onEnd: function (evt) {
                         const itemEl = evt.item;
                         const newStatus = evt.to.getAttribute('data-status');
@@ -417,7 +411,6 @@
         let colCounts = {};
         Object.values(categories).flat().forEach(c => colCounts[c.id] = 0);
 
-        // Render Kanban Kaartjes
         appData.games.forEach(game => {
             if (search && !game.titel.toLowerCase().includes(search)) return;
             if (revFilter && game.reviewer !== revFilter) return;
@@ -431,13 +424,13 @@
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
-                // Iconen Rechtsboven (Tekst + BGG)
+                // === DE VERNIEUWDE ICONEN RECHTSBOVEN & KLIKBARE LINK ===
                 let iconsHtml = '<div class="card-icons">';
                 if (game.tekstStatus === 'Af') iconsHtml += `<i class="fa-solid fa-file-lines" style="color: #4ade80;" title="Tekst Af"></i>`;
                 if (game.tekstStatus === 'Gepubliceerd') iconsHtml += `<i class="fa-solid fa-globe" style="color: var(--blue);" title="Gepubliceerd"></i>`;
                 
                 if(game.bggLink) {
-                    iconsHtml += `<a href="${game.bggLink}" target="_blank" class="bgg-link" title="Bekijk op BoardGameGeek" onclick="event.stopPropagation();"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>`;
+                    iconsHtml += `<i class="fa-solid fa-arrow-up-right-from-square bgg-link" title="Bekijk op BoardGameGeek" onclick="event.stopPropagation(); window.open('${game.bggLink}', '_blank');"></i>`;
                 }
                 iconsHtml += '</div>';
 
@@ -459,7 +452,7 @@
             }
         });
 
-        // Archief Zoeken (Alleen tonen als er gezocht wordt)
+        // Archief Zoeken
         if (search || revFilter) {
             archiveSection.style.display = 'block';
             let archiveCount = 0;
@@ -486,8 +479,7 @@
 
         updateCounts(colCounts);
 
-        // Bereken statistieken uit het OVERZICHT archief (volledige totalen)
-        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Totaal aantal Reviews (incl. Overzicht Archief):</strong> `;
+        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Totaal aantal Reviews (incl. Overzicht):</strong> `;
         let sortedStats = Object.keys(appData.stats).sort((a,b) => appData.stats[b] - appData.stats[a]);
         
         sortedStats.forEach(r => {
@@ -542,15 +534,12 @@
         document.getElementById('gTitel').focus();
     }
 
-    // Combineer Sluiten en Opslaan
     function saveAndClose() {
         const titel = document.getElementById('gTitel').value.trim();
         if(!titel && !document.getElementById('gId').value) { 
-            // Nieuw spel zonder titel = annuleren
             document.getElementById('modal-overlay').style.display = 'none';
             return; 
         }
-        
         if(!titel) { alert("Titel mag niet leeg zijn!"); return; }
 
         const game = {
@@ -568,7 +557,6 @@
 
         document.getElementById('modal-overlay').style.display = 'none';
         
-        // Laat eventjes een success melding ("Toast") zien
         const toast = document.getElementById('toast');
         toast.style.display = 'block';
         setTimeout(() => toast.style.display = 'none', 2000);
@@ -577,7 +565,7 @@
             method: 'POST',
             body: JSON.stringify({ action: 'saveGame', token: localStorage.getItem('sot_token'), game: game })
         }).then(res => res.json()).then(data => {
-            if(data.success) fetchData(); // Herlaad na opslaan
+            if(data.success) fetchData(); 
         });
     }
 
@@ -596,9 +584,9 @@
                 if(data.link) {
                     document.getElementById('gBgg').value = data.link;
                     const input = document.getElementById('gBgg');
-                    input.style.backgroundColor = '#064e3b'; // Donkergroen flash
+                    input.style.backgroundColor = '#064e3b';
                     setTimeout(() => input.style.backgroundColor = '#333', 1000);
-                } else alert("Geen BGG link gevonden voor deze exacte titel. Je kunt deze eventueel handmatig opzoeken.");
+                } else alert("Er is iets misgegaan met de BGG verbinding.");
             })
             .catch(err => alert("Fout bij zoeken op BGG."))
             .finally(() => { btn.innerHTML = originalContent; btn.disabled = false; });
