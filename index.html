@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spel op Tafel - Review Kanban</title>
+    <title>Review Overzicht</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #f37021; /* In Bezit Oranje */
-            --primary-hover: #d95c14;
-            --blue: #3b82f6; /* Reviewexemplaar Blauw */
-            --bg: #f4f6f8;
-            --card-bg: #ffffff;
-            --text: #333;
-            --border: #e0e0e0;
-            --column-bg: #eef1f5;
+            /* DARK THEME COLORS */
+            --primary: #FED231; /* Spel op Tafel Geel/Oranje */
+            --primary-hover: #e5bc2c;
+            --blue: #60a5fa; /* Lichter blauw */
+            --bg: #121212;
+            --card-bg: #222222;
+            --text: #e0e0e0;
+            --text-muted: #9ca3af;
+            --border: #333333;
+            --column-bg: #1a1a1a;
         }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -26,64 +28,73 @@
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        #login-screen h1 { color: var(--primary); margin-bottom: 5px; font-size: 32px;}
-        #login-screen input { padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border); width: 250px; font-size: 16px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);}
-        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s ease;}
+        #login-screen img { height: 80px; margin-bottom: 20px; }
+        #login-screen input { padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border); width: 250px; font-size: 16px; background: #222; color: #fff;}
+        .btn { background: var(--primary); color: #121212; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s ease;}
         .btn:hover { background: var(--primary-hover); }
 
-        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
+        header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; border: 1px solid var(--border);}
         .logo-area { display: flex; align-items: center; gap: 15px; font-size: 24px; font-weight: bold; color: var(--primary); }
+        .logo-area img { height: 40px; }
         .controls { display: flex; gap: 15px; flex-wrap: wrap; align-items: center;}
-        .controls input, .controls select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px;}
+        .controls input, .controls select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; background: #333; color: #fff;}
         
-        .stats-bar { background: white; padding: 12px 20px; border-radius: 12px; margin-bottom: 25px; font-size: 14px; display: flex; gap: 20px; overflow-x: auto; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.03);}
+        .stats-bar { background: var(--card-bg); padding: 12px 20px; border-radius: 12px; margin-bottom: 25px; font-size: 14px; display: flex; gap: 20px; overflow-x: auto; white-space: nowrap; border: 1px solid var(--border);}
         
-        /* Board Rijen */
+        /* Board Rijen & Kleuren */
         .board-row { margin-bottom: 40px; }
         .board-row h3 { border-bottom: 2px solid; padding-bottom: 8px; margin-bottom: 20px; font-size: 22px; display: inline-block;}
         .board { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 15px; min-height: 200px;}
         
-        /* Kleurscheiding voor de categorieën */
         .cat-review h3 { color: var(--blue); border-bottom-color: var(--blue); }
         .cat-review .card { border-left-color: var(--blue); }
         .cat-review .bgg-link { color: var(--blue); }
-        .cat-review .bgg-link:hover { color: #2563eb; }
         
         .cat-bezit h3 { color: var(--primary); border-bottom-color: var(--primary); }
         .cat-bezit .card { border-left-color: var(--primary); }
+        .cat-bezit .bgg-link { color: var(--primary); }
         
         .board::-webkit-scrollbar { height: 8px; }
-        .board::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        .board::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-        .board::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        .board::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
+        .board::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        .board::-webkit-scrollbar-thumb:hover { background: #777; }
 
-        .column { background: var(--column-bg); min-width: 300px; width: 300px; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; border: 1px solid #e0e5ec;}
-        .col-header { font-weight: bold; margin-bottom: 15px; font-size: 15px; text-transform: uppercase; color: #555; display: flex; justify-content: space-between; align-items: center;}
+        .column { background: var(--column-bg); min-width: 300px; width: 300px; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; border: 1px solid var(--border);}
+        .col-header { font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;}
         .task-list { flex-grow: 1; min-height: 100px; display: flex; flex-direction: column; gap: 12px; }
         
-        .card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); cursor: pointer; position: relative; border-left: 5px solid; transition: all 0.2s ease;}
-        .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
-        .card-title { font-weight: 600; margin-bottom: 6px; font-size: 16px; color: #222; padding-right: 25px; }
-        .card-pub { font-size: 13px; color: #666; margin-bottom: 10px;}
-        .card-meta { font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: #555; margin-top: 8px;}
-        .tag { background: #e2e8f0; color: #475569; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;}
-        .bgg-link { position: absolute; top: 15px; right: 15px; font-size: 16px; color: var(--primary); transition: color 0.2s;}
-        .bgg-link:hover { color: var(--primary-hover); }
+        /* Kanban Card */
+        .card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; position: relative; border-left: 5px solid; transition: all 0.2s ease;}
+        .card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.4);}
+        .card-title { font-weight: 600; margin-bottom: 6px; font-size: 16px; color: #fff; padding-right: 60px; /* Ruimte voor iconen rechtsboven */ }
+        .card-pub { font-size: 13px; color: var(--text-muted); margin-bottom: 10px;}
+        .card-meta { font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); margin-top: 8px;}
+        
+        /* Iconen Container rechtsboven */
+        .card-icons { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; align-items: center; font-size: 16px; z-index: 10;}
+        .bgg-link { transition: filter 0.2s; }
+        .bgg-link:hover { filter: brightness(1.3); }
+        .tag { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
 
-        #modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(3px);}
-        .modal { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;}
-        .modal h2 { margin-top: 0; color: #444; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px;}
-        .close-btn { position: absolute; top: 30px; right: 30px; font-size: 22px; cursor: pointer; color: #888; transition: color 0.2s;}
-        .close-btn:hover { color: #222; }
+        /* Archief Resultaten */
+        #archive-section { display: none; margin-top: 40px; border-top: 2px dashed var(--border); padding-top: 20px;}
+        .archive-card { background: var(--column-bg); padding: 12px; border-radius: 8px; border-left: 4px solid #555; }
+
+        /* Modal */
+        #modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);}
+        .modal { background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative;}
+        .modal h2 { margin-top: 0; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px;}
+        .close-btn { position: absolute; top: 25px; right: 25px; font-size: 24px; cursor: pointer; color: var(--text-muted); transition: color 0.2s;}
+        .close-btn:hover { color: #fff; }
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { margin-bottom: 5px; }
         .form-group.full-width { grid-column: span 2; }
-        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #444;}
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 14px;}
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(243, 112, 33, 0.2);}
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 8px; color: var(--text-muted);}
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; font-size: 14px; background: #333; color: #fff;}
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(254, 210, 49, 0.2);}
         
         #loading { display: none; text-align: center; padding: 30px; font-weight: bold; color: var(--primary); font-size: 18px;}
-        .auto-save-toast { position: absolute; bottom: -30px; right: 10px; font-size: 12px; color: #10b981; font-weight: bold; opacity: 0; transition: opacity 0.3s;}
+        .auto-save-toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; display: none; font-weight: bold; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
 
         @media (max-width: 768px) {
             .modal-grid { grid-template-columns: 1fr; gap: 15px; }
@@ -97,29 +108,28 @@
 <body>
 
     <div id="login-screen">
-        <i class="fa-solid fa-dice-d20" style="font-size: 50px; color: var(--primary); margin-bottom: 15px;"></i>
-        <h1>Spel op Tafel</h1>
-        <p style="color: #666; margin-bottom: 20px;">Review Management Systeem</p>
+        <img src="logo.png" alt="Spel op Tafel" onerror="this.src='https://www.speloptafel.nl/wp-content/uploads/2023/11/cropped-Logo-SoT.png'">
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Review Management Systeem</p>
         <input type="password" id="pwdInput" placeholder="Wachtwoord invoeren..." onkeypress="if(event.key === 'Enter') login()">
         <button class="btn" onclick="login()">Inloggen <i class="fa-solid fa-arrow-right"></i></button>
-        <div id="login-error" style="color: #dc2626; margin-top: 15px; font-weight: bold;"></div>
+        <div id="login-error" style="color: #ef4444; margin-top: 15px; font-weight: bold;"></div>
     </div>
 
     <div id="app-screen" style="display: none;" class="container">
         <header>
             <div class="logo-area">
-                <i class="fa-solid fa-dice-d20"></i>
-                Review Kanban
+                <img src="logo.png" alt="Logo" onerror="this.src='https://www.speloptafel.nl/wp-content/uploads/2023/11/cropped-Logo-SoT.png'">
+                Review Overzicht
             </div>
             <div class="controls">
                 <div style="position: relative;">
-                    <i class="fa-solid fa-search" style="position: absolute; left: 10px; top: 12px; color: #999;"></i>
+                    <i class="fa-solid fa-search" style="position: absolute; left: 10px; top: 12px; color: #888;"></i>
                     <input type="text" id="searchInput" placeholder="Zoek spel..." onkeyup="renderBoard()" style="padding-left: 35px; width: 200px;">
                 </div>
                 <select id="filterReviewer" onchange="renderBoard()">
                     <option value="">Alle Reviewers</option>
                 </select>
-                <button class="btn" onclick="openModal()"><i class="fa-solid fa-plus"></i> Spel Toevoegen</button>
+                <button class="btn" onclick="openModal()"><i class="fa-solid fa-plus"></i> Nieuw Spel</button>
             </div>
         </header>
 
@@ -127,11 +137,20 @@
         <div id="loading"><i class="fa-solid fa-dice fa-spin"></i> Gegevens ophalen uit Google Sheets...</div>
         
         <div id="kanban-board"></div>
+        
+        <!-- Archief sectie (wordt alleen getoond bij zoeken) -->
+        <div id="archive-section">
+            <h3 style="color: var(--text-muted); margin-bottom: 15px;"><i class="fa-solid fa-box-archive"></i> Resultaten uit het Overzicht Archief</h3>
+            <div id="archive-results" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;"></div>
+        </div>
     </div>
+
+    <!-- Toast Melding voor Autosave -->
+    <div id="toast" class="auto-save-toast"><i class="fa-solid fa-check"></i> Opgeslagen!</div>
 
     <div id="modal-overlay">
         <div class="modal">
-            <i class="fa-solid fa-xmark close-btn" onclick="saveGame()" title="Opslaan & Sluiten"></i>
+            <i class="fa-solid fa-xmark close-btn" onclick="saveAndClose()" title="Opslaan & Sluiten"></i>
             <h2 id="modalTitle"><i class="fa-solid fa-pen-to-square"></i> Spel Bewerken</h2>
             <input type="hidden" id="gId">
             <div class="modal-grid">
@@ -142,7 +161,7 @@
                 
                 <div class="form-group">
                     <label>Uitgever</label>
-                    <input type="text" id="gUitgever" placeholder="Bijv. 999 Games, White Goblin">
+                    <input type="text" id="gUitgever" placeholder="Bijv. 999 Games">
                 </div>
                 
                 <div class="form-group">
@@ -165,7 +184,7 @@
 
                 <div class="form-group">
                     <label>Reviewer</label>
-                    <select id="gReviewer"><option value="">- Geen toegewezen -</option></select>
+                    <select id="gReviewer"><option value="">- Geen -</option></select>
                 </div>
                 
                 <div class="form-group">
@@ -186,13 +205,13 @@
                 <div class="form-group">
                     <label><i class="fa-solid fa-file-lines"></i> Tekst Status</label>
                     <select id="gTekst">
-                        <option value="">- Geen -</option>
+                        <option value="">- Niet af -</option>
                         <option value="Af">Af</option>
                         <option value="Gepubliceerd">Gepubliceerd</option>
                     </select>
                 </div>
 
-                <div class="form-group full-width" style="position: relative;">
+                <div class="form-group full-width">
                     <label><i class="fa-solid fa-link"></i> BoardGameGeek Link</label>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="gBgg" placeholder="https://boardgamegeek.com/boardgame/...">
@@ -202,7 +221,7 @@
                     </div>
                 </div>
             </div>
-            <div style="text-align: right; margin-top: 15px; font-size: 13px; color: #888;">
+            <div style="text-align: right; margin-top: 25px; font-size: 13px; color: var(--text-muted);">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Wijzigingen worden automatisch opgeslagen bij het sluiten.
             </div>
         </div>
@@ -211,7 +230,7 @@
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzyMLVMBIwLUmLqFkiBn5BWs0b_btiOnj-L63ifH-2wsTGRMSTnt-8rFisFMGSEy-tG/exec"; 
     
-    let appData = { games: [], reviewers: [], episodes: [] };
+    let appData = { games: [], archiveGames: [], reviewers: [], episodes: [], stats: {} };
     let top10Episodes = [];
     
     const categories = {
@@ -229,17 +248,39 @@
         ]
     };
 
+    // Genereer vaste, mooie kleurtjes per reviewer gebaseerd op hun naam
+    function stringToColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+        return `hsl(${Math.abs(hash % 360)}, 70%, 45%)`;
+    }
+
     // Auto-save bij klikken naast de modal
     document.getElementById('modal-overlay').addEventListener('mousedown', function(e) {
-        if (e.target === this) saveGame();
+        if (e.target === this) saveAndClose();
     });
 
     window.onload = () => {
-        if(localStorage.getItem('sot_token')) {
-            showApp();
-            fetchData();
-        }
+        if(localStorage.getItem('sot_token')) { showApp(); fetchData(); }
     };
+
+    // 15 seconden Polling voor actuele data!
+    setInterval(() => {
+        if (document.getElementById('modal-overlay').style.display === 'flex') return; // Niet storen tijdens bewerken
+        
+        fetch(GAS_URL + "?action=getData&token=" + localStorage.getItem('sot_token'))
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) return;
+                const newDataStr = JSON.stringify(data.games);
+                const oldDataStr = JSON.stringify(appData.games);
+                if (newDataStr !== oldDataStr) {
+                    appData = data;
+                    processDataRules();
+                    renderBoard(); // Pas vernieuwen als er daadwerkelijk een aanpassing was
+                }
+            }).catch(e => console.log('Silent poll error'));
+    }, 15000);
 
     function login() {
         const pwd = document.getElementById('pwdInput').value;
@@ -250,8 +291,7 @@
             .then(data => {
                 if (data.success) {
                     localStorage.setItem('sot_token', data.token);
-                    showApp();
-                    fetchData();
+                    showApp(); fetchData();
                 } else errorDiv.innerText = "Onjuist wachtwoord! Probeer het opnieuw.";
             });
     }
@@ -259,6 +299,16 @@
     function showApp() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
+    }
+
+    function processDataRules() {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        top10Episodes = appData.episodes
+            .sort((a,b) => new Date(a.date) - new Date(b.date))
+            .filter(e => new Date(e.date) >= today)
+            .slice(0, 10);
+        populateReviewerDropdown();
     }
 
     function fetchData() {
@@ -270,16 +320,7 @@
             .then(data => {
                 if(data.error) { alert("Sessie verlopen."); localStorage.clear(); location.reload(); return; }
                 appData = data;
-                
-                // Bereken Top 10 Toekomstige Afleveringen
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                top10Episodes = appData.episodes
-                    .sort((a,b) => new Date(a.date) - new Date(b.date))
-                    .filter(e => new Date(e.date) >= today)
-                    .slice(0, 10);
-                
-                populateReviewerDropdown();
+                processDataRules();
                 renderBoard();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('kanban-board').style.display = 'block';
@@ -292,7 +333,7 @@
         const currentFilter = revSelect.value;
         
         revSelect.innerHTML = '<option value="">Alle Reviewers</option>';
-        modalRev.innerHTML = '<option value="">- Geen toegewezen -</option>';
+        modalRev.innerHTML = '<option value="">- Geen -</option>';
         
         appData.reviewers.forEach(r => {
             revSelect.innerHTML += `<option value="${r}">${r}</option>`;
@@ -311,7 +352,6 @@
             if(e.nr == currentAflNr) foundCurrent = true;
         });
 
-        // Voeg de huidige toe als deze ontbreekt (oude/geplande aflevering > 10)
         if (currentAflNr && !foundCurrent) {
             let ep = appData.episodes.find(e => e.nr == currentAflNr);
             if(ep) optionsHtml += `<option value="${ep.nr}">Afl ${ep.nr} (${ep.date})</option>`;
@@ -324,13 +364,18 @@
 
     function renderBoard() {
         const boardContainer = document.getElementById('kanban-board');
+        const archiveSection = document.getElementById('archive-section');
+        const archiveResults = document.getElementById('archive-results');
+        
         boardContainer.innerHTML = '';
+        archiveResults.innerHTML = '';
+        
         const search = document.getElementById('searchInput').value.toLowerCase();
         const revFilter = document.getElementById('filterReviewer').value;
 
+        // Bouw Kanban Bord Rijen
         Object.keys(categories).forEach(cat => {
             const rowDiv = document.createElement('div');
-            // Zorg voor de css klassen 'cat-review' of 'cat-bezit' voor de kleuren
             const catClass = cat === "Reviewexemplaar" ? "cat-review" : "cat-bezit";
             rowDiv.className = `board-row ${catClass}`;
             
@@ -369,16 +414,11 @@
             });
         });
 
-        let stats = {};
         let colCounts = {};
-        appData.reviewers.forEach(r => stats[r] = 0);
         Object.values(categories).flat().forEach(c => colCounts[c.id] = 0);
 
+        // Render Kanban Kaartjes
         appData.games.forEach(game => {
-            if (game.reviewer && stats[game.reviewer] !== undefined && !['Opgenomen', 'Uitgezonden'].includes(game.status)) {
-                stats[game.reviewer]++;
-            }
-
             if (search && !game.titel.toLowerCase().includes(search)) return;
             if (revFilter && game.reviewer !== revFilter) return;
 
@@ -391,18 +431,24 @@
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
-                let html = `<div class="card-title">${game.titel}</div>`;
-                if(game.uitgever) html += `<div class="card-pub"><i class="fa-regular fa-building"></i> ${game.uitgever}</div>`;
+                // Iconen Rechtsboven (Tekst + BGG)
+                let iconsHtml = '<div class="card-icons">';
+                if (game.tekstStatus === 'Af') iconsHtml += `<i class="fa-solid fa-file-lines" style="color: #4ade80;" title="Tekst Af"></i>`;
+                if (game.tekstStatus === 'Gepubliceerd') iconsHtml += `<i class="fa-solid fa-globe" style="color: var(--blue);" title="Gepubliceerd"></i>`;
                 
                 if(game.bggLink) {
-                    html += `<a href="${game.bggLink}" target="_blank" class="bgg-link" onclick="event.stopPropagation()" title="Bekijk op BoardGameGeek">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                             </a>`;
+                    iconsHtml += `<a href="${game.bggLink}" target="_blank" class="bgg-link" title="Bekijk op BoardGameGeek" onclick="event.stopPropagation();"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>`;
                 }
+                iconsHtml += '</div>';
+
+                let html = iconsHtml + `<div class="card-title">${game.titel}</div>`;
+                if(game.uitgever) html += `<div class="card-pub"><i class="fa-regular fa-building"></i> ${game.uitgever}</div>`;
                 
                 html += `<div class="card-meta">`;
-                if(game.reviewer) html += `<span class="tag"><i class="fa-solid fa-user-astronaut"></i> ${game.reviewer}</span>`;
-                else html += `<span></span>`; 
+                if(game.reviewer) {
+                    const tagColor = stringToColor(game.reviewer);
+                    html += `<span class="tag" style="background-color: ${tagColor};"><i class="fa-solid fa-chess-pawn"></i> ${game.reviewer}</span>`;
+                } else html += `<span></span>`; 
                 
                 if (game.afleveringNr) html += `<span style="font-weight:bold;"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
                 else if(game.deadline) html += `<span><i class="fa-regular fa-clock"></i> ${game.deadline}</span>`;
@@ -413,40 +459,51 @@
             }
         });
 
+        // Archief Zoeken (Alleen tonen als er gezocht wordt)
+        if (search || revFilter) {
+            archiveSection.style.display = 'block';
+            let archiveCount = 0;
+            appData.archiveGames.forEach(g => {
+                if (search && !g.titel.toLowerCase().includes(search)) return;
+                if (revFilter && g.reviewer !== revFilter) return;
+                archiveCount++;
+                
+                const tagColor = stringToColor(g.reviewer);
+                archiveResults.innerHTML += `
+                    <div class="archive-card">
+                        <div style="font-weight: bold; color: #fff; margin-bottom: 5px;">${g.titel}</div>
+                        <div style="font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
+                            <span class="tag" style="background-color: ${tagColor}; font-size: 10px;"><i class="fa-solid fa-chess-pawn"></i> ${g.reviewer}</span>
+                            <span><i class="fa-solid fa-podcast"></i> Afl. ${g.afleveringNr || '?'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            if (archiveCount === 0) archiveResults.innerHTML = '<span style="color: #666; font-style: italic;">Geen resultaten gevonden in het archief.</span>';
+        } else {
+            archiveSection.style.display = 'none';
+        }
+
         updateCounts(colCounts);
 
-        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Actieve Reviewexemplaren:</strong> `;
-        for(let r in stats) {
-            if(stats[r] > 0 || !revFilter) statsHtml += `<span class="tag" style="margin-left: 10px;">${r}: ${stats[r]}</span> `;
-        }
+        // Bereken statistieken uit het OVERZICHT archief (volledige totalen)
+        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Totaal aantal Reviews (incl. Overzicht Archief):</strong> `;
+        let sortedStats = Object.keys(appData.stats).sort((a,b) => appData.stats[b] - appData.stats[a]);
+        
+        sortedStats.forEach(r => {
+            if(appData.stats[r] > 0 && (!revFilter || revFilter === r)) {
+                const tagColor = stringToColor(r);
+                statsHtml += `<span class="tag" style="margin-left: 10px; background-color: ${tagColor};">${r}: ${appData.stats[r]}</span> `;
+            }
+        });
         document.getElementById('statsBar').innerHTML = statsHtml;
     }
 
     function updateCounts(counts) {
-        if(!counts) {
-            Object.values(categories).flat().forEach(col => {
-                const list = document.getElementById(`col-${col.id}`);
-                if(list) document.getElementById(`count-${col.id}`).innerText = list.querySelectorAll('.card').length;
-            });
-        } else {
-            for(let id in counts) {
-                const el = document.getElementById(`count-${id}`);
-                if(el) el.innerText = counts[id];
-            }
+        for(let id in counts) {
+            const el = document.getElementById(`count-${id}`);
+            if(el) el.innerText = counts[id];
         }
-    }
-
-    function setupTekstStatus(val) {
-        const select = document.getElementById('gTekst');
-        select.innerHTML = `
-            <option value="">- Geen -</option>
-            <option value="Af">Af</option>
-            <option value="Gepubliceerd">Gepubliceerd</option>
-        `;
-        if (val && !['', 'Af', 'Gepubliceerd'].includes(val)) {
-            select.innerHTML += `<option value="${val}">${val}</option>`;
-        }
-        select.value = val || "";
     }
 
     function editGame(id) {
@@ -462,14 +519,14 @@
         document.getElementById('gDeadline').value = game.deadline;
         populateEpisodeDropdown(game.afleveringNr);
         document.getElementById('gVerwacht').value = game.verwacht;
-        setupTekstStatus(game.tekstStatus);
+        document.getElementById('gTekst').value = game.tekstStatus || "";
         document.getElementById('gBgg').value = game.bggLink;
         
         document.getElementById('modal-overlay').style.display = 'flex';
     }
 
     function openModal() {
-        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-square-plus"></i> Nieuw Spel Toevoegen';
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-square-plus"></i> Nieuw Spel';
         document.getElementById('gId').value = "";
         document.getElementById('gTitel').value = "";
         document.getElementById('gUitgever').value = "";
@@ -478,21 +535,23 @@
         document.getElementById('gDeadline').value = "";
         populateEpisodeDropdown("");
         document.getElementById('gVerwacht').value = "";
-        setupTekstStatus("");
+        document.getElementById('gTekst').value = "";
         document.getElementById('gBgg').value = "";
         
         document.getElementById('modal-overlay').style.display = 'flex';
         document.getElementById('gTitel').focus();
     }
 
-    function saveGame() {
+    // Combineer Sluiten en Opslaan
+    function saveAndClose() {
         const titel = document.getElementById('gTitel').value.trim();
-        
-        // Als titel leeg is (bijv. geklikt op toevoegen maar direct weggeklikt)
-        if(!titel) { 
+        if(!titel && !document.getElementById('gId').value) { 
+            // Nieuw spel zonder titel = annuleren
             document.getElementById('modal-overlay').style.display = 'none';
             return; 
         }
+        
+        if(!titel) { alert("Titel mag niet leeg zijn!"); return; }
 
         const game = {
             id: document.getElementById('gId').value,
@@ -507,14 +566,18 @@
             bggLink: document.getElementById('gBgg').value
         };
 
-        // Sluit modal direct voor soepele gebruikerservaring
         document.getElementById('modal-overlay').style.display = 'none';
+        
+        // Laat eventjes een success melding ("Toast") zien
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 2000);
         
         fetch(GAS_URL, {
             method: 'POST',
             body: JSON.stringify({ action: 'saveGame', token: localStorage.getItem('sot_token'), game: game })
         }).then(res => res.json()).then(data => {
-            if(data.success) fetchData(); // Herlaad op de achtergrond voor de nieuwste stats/kolommen
+            if(data.success) fetchData(); // Herlaad na opslaan
         });
     }
 
@@ -533,9 +596,9 @@
                 if(data.link) {
                     document.getElementById('gBgg').value = data.link;
                     const input = document.getElementById('gBgg');
-                    input.style.backgroundColor = '#dcfce7';
-                    setTimeout(() => input.style.backgroundColor = '', 1000);
-                } else alert("Geen BGG link gevonden voor deze titel.");
+                    input.style.backgroundColor = '#064e3b'; // Donkergroen flash
+                    setTimeout(() => input.style.backgroundColor = '#333', 1000);
+                } else alert("Geen BGG link gevonden voor deze exacte titel. Je kunt deze eventueel handmatig opzoeken.");
             })
             .catch(err => alert("Fout bij zoeken op BGG."))
             .finally(() => { btn.innerHTML = originalContent; btn.disabled = false; });
