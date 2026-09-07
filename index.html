@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spel op Tafel - Review Kanban</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #f37021; /* Spel op Tafel Oranje */
+            --bg: #f4f6f8;
+            --card-bg: #ffffff;
+            --text: #333;
+            --border: #e0e0e0;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: var(--text); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        /* Login Scherm */
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        #login-screen input { padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--border); width: 250px; font-size: 16px; }
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;}
+        .btn:hover { background: #d95c14; }
+
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 20px;}
+        .logo-area { display: flex; align-items: center; gap: 15px; font-size: 24px; font-weight: bold; color: var(--primary); }
+        .controls { display: flex; gap: 15px; flex-wrap: wrap; align-items: center;}
+        .controls input, .controls select { padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
+        
+        /* Stats */
+        .stats-bar { background: white; padding: 10px 20px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; display: flex; gap: 20px; overflow-x: auto; white-space: nowrap;}
+        
+        /* Kanban Board */
+        .board { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; }
+        .column { background: #eef1f5; min-width: 280px; width: 280px; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; }
+        .col-header { font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px;}
+        .col-category { font-size: 11px; color: #777; text-transform: uppercase; }
+        .task-list { flex-grow: 1; min-height: 100px; display: flex; flex-direction: column; gap: 10px; }
+        
+        /* Cards */
+        .card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; position: relative; border-left: 4px solid var(--primary); transition: transform 0.1s;}
+        .card:hover { transform: translateY(-2px); }
+        .card-title { font-weight: bold; margin-bottom: 5px; font-size: 15px;}
+        .card-pub { font-size: 12px; color: #666; margin-bottom: 8px;}
+        .card-meta { font-size: 12px; display: flex; justify-content: space-between; color: #444; }
+        .tag { background: #eee; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;}
+        .bgg-link { position: absolute; top: 15px; right: 15px; color: #ff5100; font-size: 16px;}
+
+        /* Modal */
+        #modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal h2 { margin-top: 0; color: var(--primary); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
+        .modal-actions { display: flex; justify-content: space-between; margin-top: 20px; }
+        
+        #loading { display: none; text-align: center; padding: 20px; font-weight: bold; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h1 style="color: var(--primary);">Spel op Tafel</h1>
+        <p>Voer het wachtwoord in om door te gaan</p>
+        <input type="password" id="pwdInput" placeholder="Wachtwoord">
+        <button class="btn" onclick="login()">Inloggen</button>
+        <div id="login-error" style="color: red; margin-top: 10px;"></div>
+    </div>
+
+    <div id="app-screen" style="display: none;" class="container">
+        <header>
+            <div class="logo-area">
+                <i class="fa-solid fa-dice-d20"></i> Review Overzicht
+            </div>
+            <div class="controls">
+                <input type="text" id="searchInput" placeholder="Zoek op titel..." onkeyup="renderBoard()">
+                <select id="filterReviewer" onchange="renderBoard()">
+                    <option value="">Alle Reviewers</option>
+                </select>
+                <button class="btn" onclick="openModal()"><i class="fa-solid fa-plus"></i> Spel Toevoegen</button>
+            </div>
+        </header>
+
+        <div class="stats-bar" id="statsBar">Laden...</div>
+        <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Gegevens ophalen uit Google Sheets...</div>
+        
+        <div class="board" id="kanban-board">
+            <!-- Columns generated via JS -->
+        </div>
+    </div>
+
+    <div id="modal-overlay">
+        <div class="modal">
+            <h2 id="modalTitle">Spel Toevoegen/Bewerken</h2>
+            <input type="hidden" id="gId">
+            <div class="form-group">
+                <label>Titel</label>
+                <input type="text" id="gTitel" required>
+            </div>
+            <div class="form-group">
+                <label>Uitgever</label>
+                <input type="text" id="gUitgever">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="gStatus">
+                    <optgroup label="Reviewexemplaar">
+                        <option value="Aangeboden">Aangeboden</option>
+                        <option value="Toegekend">Toegekend</option>
+                        <option value="Aangevraagd">Aangevraagd</option>
+                        <option value="Opgestuurd">Opgestuurd</option>
+                    </optgroup>
+                    <optgroup label="In bezit">
+                        <option value="Nieuw">Nieuw</option>
+                        <option value="Gepland">Gepland</option>
+                        <option value="Opgenomen">Opgenomen</option>
+                        <option value="Uitgezonden">Uitgezonden</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Reviewer</label>
+                <select id="gReviewer"><option value="">- Geen -</option></select>
+            </div>
+            <div class="form-group">
+                <label><i class="fa-regular fa-calendar"></i> Deadline (Optioneel)</label>
+                <input type="date" id="gDeadline">
+            </div>
+            <div class="form-group">
+                <label>Podcast Aflevering</label>
+                <select id="gAflevering"><option value="">- Geen -</option></select>
+            </div>
+            <div class="form-group">
+                <label>BGG Link</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="gBgg">
+                    <button class="btn" style="padding: 8px;" onclick="autoFetchBGG()" title="Zoek automatisch op BGG"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" style="background:#888;" onclick="closeModal()">Annuleren</button>
+                <button class="btn" onclick="saveGame()">Opslaan</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // === VUL HIER JE GOOGLE APPS SCRIPT URL IN ===
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxQsDzuaOAiBFtj0o69HiRhVaiLt2cnUVIy7JVDEF4ADBU9beidFkGdRbkD8MvXjmKe/exec"; 
+    
+    let appData = { games: [], reviewers: [], episodes: [] };
+    const columns = [
+        { id: "Aangeboden", name: "Aangeboden", cat: "Reviewexemplaar" },
+        { id: "Toegekend", name: "Toegekend", cat: "Reviewexemplaar" },
+        { id: "Aangevraagd", name: "Aangevraagd", cat: "Reviewexemplaar" },
+        { id: "Opgestuurd", name: "Opgestuurd", cat: "Reviewexemplaar" },
+        { id: "Nieuw", name: "Nieuw", cat: "In bezit" },
+        { id: "Gepland", name: "Gepland", cat: "In bezit" },
+        { id: "Opgenomen", name: "Opgenomen", cat: "In bezit" },
+        { id: "Uitgezonden", name: "Uitgezonden", cat: "In bezit" }
+    ];
+
+    // Auth Check on load
+    window.onload = () => {
+        if(localStorage.getItem('sot_token')) {
+            showApp();
+            fetchData();
+        }
+    };
+
+    function login() {
+        const pwd = document.getElementById('pwdInput').value;
+        fetch(GAS_URL + "?action=login&password=" + encodeURIComponent(pwd))
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('sot_token', data.token);
+                    showApp();
+                    fetchData();
+                } else {
+                    document.getElementById('login-error').innerText = "Onjuist wachtwoord!";
+                }
+            });
+    }
+
+    function showApp() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'block';
+    }
+
+    function fetchData() {
+        document.getElementById('loading').style.display = 'block';
+        fetch(GAS_URL + "?action=getData&token=" + localStorage.getItem('sot_token'))
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) { alert("Sessie verlopen."); localStorage.clear(); location.reload(); return; }
+                appData = data;
+                populateDropdowns();
+                renderBoard();
+                document.getElementById('loading').style.display = 'none';
+            });
+    }
+
+    function populateDropdowns() {
+        const revSelect = document.getElementById('filterReviewer');
+        const modalRev = document.getElementById('gReviewer');
+        const modalAfl = document.getElementById('gAflevering');
+        
+        revSelect.innerHTML = '<option value="">Alle Reviewers</option>';
+        modalRev.innerHTML = '<option value="">- Geen -</option>';
+        appData.reviewers.forEach(r => {
+            revSelect.innerHTML += `<option value="${r}">${r}</option>`;
+            modalRev.innerHTML += `<option value="${r}">${r}</option>`;
+        });
+
+        modalAfl.innerHTML = '<option value="">- Geen -</option>';
+        appData.episodes.forEach(e => {
+            modalAfl.innerHTML += `<option value="${e.nr}" data-date="${e.date}">Afl ${e.nr} (${e.date})</option>`;
+        });
+    }
+
+    function renderBoard() {
+        const board = document.getElementById('kanban-board');
+        board.innerHTML = '';
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const revFilter = document.getElementById('filterReviewer').value;
+
+        // Render Columns
+        columns.forEach(col => {
+            const colDiv = document.createElement('div');
+            colDiv.className = 'column';
+            colDiv.innerHTML = `
+                <div class="col-header">
+                    ${col.name} <span class="col-category">${col.cat}</span>
+                </div>
+                <div class="task-list" data-status="${col.id}" id="col-${col.id}"></div>
+            `;
+            board.appendChild(colDiv);
+
+            // Init Drag & Drop (Sortable)
+            Sortable.create(colDiv.querySelector('.task-list'), {
+                group: 'kanban',
+                animation: 150,
+                onEnd: function (evt) {
+                    const itemEl = evt.item;
+                    const newStatus = evt.to.getAttribute('data-status');
+                    const id = itemEl.getAttribute('data-id');
+                    updateStatusInSheet(id, newStatus);
+                }
+            });
+        });
+
+        // Filter and Render Cards
+        let stats = {};
+        appData.reviewers.forEach(r => stats[r] = 0);
+
+        appData.games.forEach(game => {
+            // Calculate Stats (only active games)
+            if (game.reviewer && stats[game.reviewer] !== undefined && !['Opgenomen', 'Uitgezonden'].includes(game.status)) {
+                stats[game.reviewer]++;
+            }
+
+            if (search && !game.titel.toLowerCase().includes(search)) return;
+            if (revFilter && game.reviewer !== revFilter) return;
+
+            const list = document.getElementById(`col-${game.status}`);
+            if (list) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.setAttribute('data-id', game.id);
+                card.onclick = () => editGame(game.id);
+                
+                let html = `<div class="card-title">${game.titel}</div>`;
+                if(game.uitgever) html += `<div class="card-pub">${game.uitgever}</div>`;
+                if(game.bggLink) html += `<a href="${game.bggLink}" target="_blank" class="bgg-link" onclick="event.stopPropagation()"><i class="fa-solid fa-link"></i></a>`;
+                html += `<div class="card-meta">`;
+                if(game.reviewer) html += `<span class="tag">${game.reviewer}</span>`;
+                if(game.deadline) html += `<span><i class="fa-regular fa-clock"></i> ${game.deadline}</span>`;
+                html += `</div>`;
+                card.innerHTML = html;
+                list.appendChild(card);
+            }
+        });
+
+        // Render Stats
+        let statsHtml = "<strong>Actieve Reviewexemplaren:</strong> ";
+        for(let r in stats) {
+            statsHtml += `<span class="tag">${r}: ${stats[r]}</span> `;
+        }
+        document.getElementById('statsBar').innerHTML = statsHtml;
+    }
+
+    function updateStatusInSheet(id, status) {
+        const game = appData.games.find(g => g.id === id);
+        if(game) game.status = status;
+        
+        fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'updateStatus', token: localStorage.getItem('sot_token'), id: id, status: status })
+        }); // Fire and forget for speed
+    }
+
+    function editGame(id) {
+        const game = appData.games.find(g => g.id === id);
+        if(!game) return;
+        document.getElementById('modalTitle').innerText = "Spel Bewerken";
+        document.getElementById('gId').value = game.id;
+        document.getElementById('gTitel').value = game.titel;
+        document.getElementById('gUitgever').value = game.uitgever;
+        document.getElementById('gStatus').value = game.status;
+        document.getElementById('gReviewer').value = game.reviewer;
+        document.getElementById('gDeadline').value = game.deadline;
+        document.getElementById('gAflevering').value = game.afleveringNr;
+        document.getElementById('gBgg').value = game.bggLink;
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    function openModal() {
+        document.getElementById('modalTitle').innerText = "Spel Toevoegen";
+        document.getElementById('gId').value = "";
+        document.getElementById('gTitel').value = "";
+        document.getElementById('gUitgever').value = "";
+        document.getElementById('gStatus').value = "Aangeboden";
+        document.getElementById('gReviewer').value = "";
+        document.getElementById('gDeadline').value = "";
+        document.getElementById('gAflevering').value = "";
+        document.getElementById('gBgg').value = "";
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').style.display = 'none';
+    }
+
+    function saveGame() {
+        const afleveringSelect = document.getElementById('gAflevering');
+        const afleveringDatum = afleveringSelect.options[afleveringSelect.selectedIndex].getAttribute('data-date') || "";
+
+        const game = {
+            id: document.getElementById('gId').value,
+            titel: document.getElementById('gTitel').value,
+            uitgever: document.getElementById('gUitgever').value,
+            status: document.getElementById('gStatus').value,
+            reviewer: document.getElementById('gReviewer').value,
+            deadline: document.getElementById('gDeadline').value,
+            afleveringNr: document.getElementById('gAflevering').value,
+            afleveringDatum: afleveringDatum,
+            bggLink: document.getElementById('gBgg').value
+        };
+
+        if(!game.titel) { alert("Titel is verplicht!"); return; }
+
+        closeModal();
+        document.getElementById('loading').style.display = 'block';
+
+        fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'saveGame', token: localStorage.getItem('sot_token'), game: game })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) { fetchData(); } // Ververs data om OVERZICHT ook door te rekenen
+        });
+    }
+
+    function autoFetchBGG() {
+        const titel = document.getElementById('gTitel').value;
+        if(!titel) return;
+        const btn = document.querySelector('.fa-magnifying-glass').parentElement;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        
+        fetch(GAS_URL + "?action=fetchBGG&titel=" + encodeURIComponent(titel) + "&token=" + localStorage.getItem('sot_token'))
+            .then(res => res.json())
+            .then(data => {
+                if(data.link) document.getElementById('gBgg').value = data.link;
+                else alert("Geen BGG link gevonden voor deze titel.");
+                btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
+            });
+    }
+</script>
+</body>
+</html>
