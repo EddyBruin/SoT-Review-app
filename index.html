@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spel op Tafel - Review Kanban</title>
+    <!-- SortableJS voor Drag & Drop -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- FontAwesome voor Iconen -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <style>
         :root {
             --primary: #f37021; /* Spel op Tafel Oranje */
@@ -16,19 +19,20 @@
             --border: #e0e0e0;
             --column-bg: #eef1f5;
         }
+        
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg); 
             margin: 0; 
             color: var(--text); 
         }
+        
         .container { 
             max-width: 1400px; 
             margin: 0 auto; 
             padding: 20px; 
         }
         
-        /* Login Scherm */
         #login-screen { 
             display: flex; 
             flex-direction: column; 
@@ -43,6 +47,7 @@
         #login-screen img {
             max-width: 150px;
             margin-bottom: 20px;
+            border-radius: 12px;
         }
         #login-screen input { 
             padding: 12px; 
@@ -53,6 +58,7 @@
             font-size: 16px; 
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
+        
         .btn { 
             background: var(--primary); 
             color: white; 
@@ -66,7 +72,6 @@
         }
         .btn:hover { background: var(--primary-hover); }
 
-        /* Header */
         header { 
             display: flex; 
             justify-content: space-between; 
@@ -76,7 +81,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
             border-radius: 12px; 
             margin-bottom: 20px;
-            flex-wrap: wrap; /* Voor mobiel */
+            flex-wrap: wrap; 
             gap: 15px;
         }
         .logo-area { 
@@ -89,6 +94,7 @@
         }
         .logo-area img {
             height: 40px;
+            border-radius: 6px;
         }
         .controls { 
             display: flex; 
@@ -103,7 +109,6 @@
             font-size: 14px;
         }
         
-        /* Stats */
         .stats-bar { 
             background: white; 
             padding: 12px 20px; 
@@ -115,9 +120,9 @@
             overflow-x: auto; 
             white-space: nowrap;
             box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            align-items: center;
         }
         
-        /* Kanban Board - Rijen en Kolommen */
         .board-row { margin-bottom: 40px; }
         .board-row h3 { 
             color: var(--primary); 
@@ -135,7 +140,6 @@
             min-height: 200px;
         }
         
-        /* Scrollbar styling voor het bord */
         .board::-webkit-scrollbar { height: 8px; }
         .board::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .board::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
@@ -154,12 +158,19 @@
         .col-header { 
             font-weight: bold; 
             margin-bottom: 15px; 
-            font-size: 15px; 
+            font-size: 14px; 
             text-transform: uppercase; 
             color: #555;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        .count-badge {
+            background: #cbd5e1;
+            color: #334155;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
         }
         .task-list { 
             flex-grow: 1; 
@@ -169,7 +180,6 @@
             gap: 12px; 
         }
         
-        /* Cards */
         .card { 
             background: var(--card-bg); 
             padding: 15px; 
@@ -189,7 +199,7 @@
             margin-bottom: 6px; 
             font-size: 16px;
             color: #222;
-            padding-right: 25px; /* Ruimte voor BGG link */
+            padding-right: 25px;
         }
         .card-pub { 
             font-size: 13px; 
@@ -221,8 +231,8 @@
             transition: color 0.2s;
         }
         .bgg-link:hover { color: var(--primary-hover); }
+        .sortable-ghost { opacity: 0.4; }
 
-        /* Modal / Pop-up */
         #modal-overlay { 
             display: none; 
             position: fixed; 
@@ -301,7 +311,6 @@
             font-size: 18px;
         }
 
-        /* Mobiele optimalisatie */
         @media (max-width: 768px) {
             .modal-grid { grid-template-columns: 1fr; gap: 15px; }
             .form-group.full-width { grid-column: span 1; }
@@ -315,7 +324,6 @@
 <body>
 
     <div id="login-screen">
-        <!-- Spel op Tafel Logo voor inlogscherm -->
         <img src="https://www.speloptafel.nl/wp-content/uploads/2023/11/cropped-Logo-SoT.png" alt="Spel op Tafel Logo">
         <p style="color: #666; margin-bottom: 20px;">Review Management Systeem</p>
         <input type="password" id="pwdInput" placeholder="Wachtwoord invoeren..." onkeypress="if(event.key === 'Enter') login()">
@@ -342,11 +350,11 @@
         </header>
 
         <div class="stats-bar" id="statsBar">Statistieken laden...</div>
+        
         <div id="loading"><i class="fa-solid fa-dice fa-spin"></i> Gegevens ophalen uit Google Sheets...</div>
         
-        <div id="kanban-board">
-            <!-- Kolommen worden dynamisch in rijen opgebouwd in Javascript -->
-        </div>
+        <!-- Hier worden de Kanban kolommen gegenereerd -->
+        <div id="kanban-board"></div>
     </div>
 
     <div id="modal-overlay">
@@ -426,14 +434,12 @@
     </div>
 
 <script>
-    // === DE GOOGLE APPS SCRIPT URL ===
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzyMLVMBIwLUmLqFkiBn5BWs0b_btiOnj-L63ifH-2wsTGRMSTnt-8rFisFMGSEy-tG/exec"; 
-    
-    
+    // NIEUWE LINK INGEVULD:
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyQw2PlrIHg0i4sfK9tCJJ7FY4B3v_c1NRJJUc8-KyK0O9vnYyTe37pNs1zpfoJ15fz/exec"; 
     
     let appData = { games: [], reviewers: [], episodes: [] };
     
-    // Categorieën en hun statussen voor het opbouwen van de rijen
+    // Categorieën en hun statussen
     const categories = {
         "Reviewexemplaar": [
             { id: "Aangeboden", name: "Aangeboden", icon: "fa-handshake" },
@@ -461,7 +467,7 @@
         const errorDiv = document.getElementById('login-error');
         errorDiv.innerText = "Controleren...";
         
-        fetch(GAS_URL + "?action=login&password=" + encodeURIComponent(pwd))
+        fetch(`${GAS_URL}?action=login&password=${encodeURIComponent(pwd)}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -473,7 +479,8 @@
                 }
             })
             .catch(err => {
-                errorDiv.innerText = "Fout bij verbinden met server.";
+                errorDiv.innerText = "Fout bij verbinden met server. Controleer de link of console.";
+                console.error(err);
             });
     }
 
@@ -486,7 +493,8 @@
         document.getElementById('loading').style.display = 'block';
         document.getElementById('kanban-board').style.display = 'none';
         
-        fetch(GAS_URL + "?action=getData&token=" + localStorage.getItem('sot_token'))
+        const token = localStorage.getItem('sot_token');
+        fetch(`${GAS_URL}?action=getData&token=${token}`)
             .then(res => res.json())
             .then(data => {
                 if(data.error) { 
@@ -502,7 +510,8 @@
                 document.getElementById('kanban-board').style.display = 'block';
             })
             .catch(err => {
-                document.getElementById('loading').innerHTML = '<span style="color:red"><i class="fa-solid fa-triangle-exclamation"></i> Fout bij laden van gegevens. Controleer de URL of je verbinding.</span>';
+                document.getElementById('loading').innerHTML = '<span style="color:red"><i class="fa-solid fa-triangle-exclamation"></i> Fout bij laden van gegevens. Bezoek even de Google Apps Script URL direct om rechten te checken.</span>';
+                console.error(err);
             });
     }
 
@@ -511,7 +520,6 @@
         const modalRev = document.getElementById('gReviewer');
         const modalAfl = document.getElementById('gAflevering');
         
-        // Behoud huidige selectie als die er is
         const currentFilter = revSelect.value;
         
         revSelect.innerHTML = '<option value="">Alle Reviewers</option>';
@@ -522,7 +530,7 @@
             modalRev.innerHTML += `<option value="${r}">${r}</option>`;
         });
         
-        revSelect.value = currentFilter; // Zet filter terug
+        revSelect.value = currentFilter;
 
         modalAfl.innerHTML = '<option value="">- Nog niet gepland -</option>';
         appData.episodes.forEach(e => {
@@ -536,12 +544,11 @@
         const search = document.getElementById('searchInput').value.toLowerCase();
         const revFilter = document.getElementById('filterReviewer').value;
 
-        // Bouw de rijen op (Reviewexemplaar vs In Bezit)
+        // Bouw de rijen op (gebruik makend van backticks voor schone HTML)
         Object.keys(categories).forEach(cat => {
             const rowDiv = document.createElement('div');
             rowDiv.className = 'board-row';
             
-            // Pas icoon aan o.b.v categorie
             const catIcon = cat === "Reviewexemplaar" ? "fa-hand-holding-box" : "fa-box-open";
             
             rowDiv.innerHTML = `<h3><i class="fa-solid ${catIcon}"></i> ${cat}</h3><div class="board" id="board-${cat.replace(/\s/g, '')}"></div>`;
@@ -549,7 +556,6 @@
             
             const catBoard = rowDiv.querySelector('.board');
             
-            // Bouw de kolommen binnen deze rij
             categories[cat].forEach(col => {
                 const colDiv = document.createElement('div');
                 colDiv.className = 'column';
@@ -562,7 +568,6 @@
                 `;
                 catBoard.appendChild(colDiv);
 
-                // Maak de lijst sleepbaar
                 Sortable.create(colDiv.querySelector('.task-list'), {
                     group: 'kanban', 
                     animation: 150,
@@ -572,46 +577,40 @@
                         const newStatus = evt.to.getAttribute('data-status');
                         const id = itemEl.getAttribute('data-id');
                         
-                        // Update status lokaal en visueel direct verwerken
                         const game = appData.games.find(g => g.id === id);
                         if(game) game.status = newStatus;
                         updateCounts();
                         
-                        // Stuur naar backend
                         updateStatusInSheet(id, newStatus);
                     }
                 });
             });
         });
 
-        // Plaats de kaartjes en bereken stats
         let stats = {};
         let colCounts = {};
         
         appData.reviewers.forEach(r => stats[r] = 0);
-        
-        // Initialiseer tellers
         Object.values(categories).flat().forEach(c => colCounts[c.id] = 0);
 
         appData.games.forEach(game => {
-            // Tel voor reviewer stats (alleen actieve)
             if (game.reviewer && stats[game.reviewer] !== undefined && !['Opgenomen', 'Uitgezonden'].includes(game.status)) {
                 stats[game.reviewer]++;
             }
 
-            // Zoekfilters toepassen
             if (search && !game.titel.toLowerCase().includes(search)) return;
             if (revFilter && game.reviewer !== revFilter) return;
 
             const list = document.getElementById(`col-${game.status}`);
             if (list) {
-                colCounts[game.status]++; // Verhoog teller voor deze kolom
+                colCounts[game.status]++; 
                 
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
+                // Veilig HTML opbouwen met backticks ter voorkoming van syntax errors
                 let html = `<div class="card-title">${game.titel}</div>`;
                 if(game.uitgever) html += `<div class="card-pub"><i class="fa-regular fa-building"></i> ${game.uitgever}</div>`;
                 
@@ -625,10 +624,9 @@
                 if(game.reviewer) {
                     html += `<span class="tag"><i class="fa-solid fa-user-astronaut"></i> ${game.reviewer}</span>`;
                 } else {
-                    html += `<span></span>`; // Spacer
+                    html += `<span></span>`; 
                 }
                 
-                // Toon Aflevering als die gepland is, anders deadline
                 if (game.afleveringNr) {
                      html += `<span style="color: var(--primary); font-weight:bold;"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
                 } else if(game.deadline) {
@@ -641,13 +639,12 @@
             }
         });
 
-        // Update de kolom tellers visueel
         updateCounts(colCounts);
 
-        // Update de statistieken balk
-        let statsHtml = "<strong><i class="fa-solid fa-chart-pie"></i> Actieve Reviewexemplaren:</strong> ";
+        /* HIER ZAT DE FOUT: nu backticks (`) in plaats van dubbele aanhalingstekens (") */
+        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Actieve Reviewexemplaren:</strong> `;
         for(let r in stats) {
-            if(stats[r] > 0 || !revFilter) { // Toon alleen reviewers met >0 tenzij gefilterd
+            if(stats[r] > 0 || !revFilter) { 
                 statsHtml += `<span class="tag" style="margin-left: 10px;">${r}: ${stats[r]}</span> `;
             }
         }
@@ -655,7 +652,6 @@
     }
 
     function updateCounts(counts) {
-        // Als er geen counts worden meegegeven (bij drag&drop), tel dan zelf de DOM elementen
         if(!counts) {
             Object.values(categories).flat().forEach(col => {
                 const list = document.getElementById(`col-${col.id}`);
@@ -676,7 +672,7 @@
         fetch(GAS_URL, {
             method: 'POST',
             body: JSON.stringify({ action: 'updateStatus', token: localStorage.getItem('sot_token'), id: id, status: status })
-        });
+        }).catch(err => console.error("Fout bij updaten status", err));
     }
 
     function editGame(id) {
@@ -741,7 +737,6 @@
             return; 
         }
 
-        // Visuele feedback dat hij opslaat
         btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Opslaan...';
         btnSave.disabled = true;
 
@@ -753,10 +748,14 @@
         .then(data => {
             if(data.success) { 
                 closeModal();
-                fetchData(); // Herlaad alles vers van de sheet
+                fetchData(); 
             } else {
-                alert("Er ging iets mis bij het opslaan.");
+                alert("Er ging iets mis bij het opslaan. Controleer de API.");
             }
+        })
+        .catch(err => {
+            alert("Communicatiefout met Google Sheets. Zie console.");
+            console.error(err);
         })
         .finally(() => {
             btnSave.innerHTML = '<i class="fa-solid fa-save"></i> Opslaan';
@@ -776,12 +775,12 @@
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Zoeken...';
         btn.disabled = true;
         
-        fetch(GAS_URL + "?action=fetchBGG&titel=" + encodeURIComponent(titel) + "&token=" + localStorage.getItem('sot_token'))
+        const token = localStorage.getItem('sot_token');
+        fetch(`${GAS_URL}?action=fetchBGG&titel=${encodeURIComponent(titel)}&token=${token}`)
             .then(res => res.json())
             .then(data => {
                 if(data.link) {
                     document.getElementById('gBgg').value = data.link;
-                    // Knipper groen als feedback
                     const input = document.getElementById('gBgg');
                     input.style.backgroundColor = '#dcfce7';
                     setTimeout(() => input.style.backgroundColor = '', 1000);
