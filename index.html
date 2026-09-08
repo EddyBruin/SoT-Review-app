@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            /* DARK THEME COLORS */
             --primary: #FED231; 
             --primary-hover: #e5bc2c;
             --blue: #60a5fa; 
@@ -30,7 +29,6 @@
         .btn { background: var(--primary); color: #121212; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s ease;}
         .btn:hover { background: var(--primary-hover); }
 
-        /* Alert Balk voor te late deadlines */
         #deadline-alert { display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: #fca5a5; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);}
         #deadline-alert h4 { margin: 0 0 10px 0; color: var(--danger); font-size: 16px;}
         #deadline-alert ul { margin: 0; padding-left: 20px; font-size: 14px; }
@@ -62,28 +60,23 @@
         .col-header { font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;}
         .task-list { flex-grow: 1; min-height: 100px; display: flex; flex-direction: column; gap: 12px; }
         
-        /* Kanban Card Standaard */
         .card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; position: relative; border-left: 5px solid; transition: all 0.2s ease;}
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.4);}
-        
-        /* Oplichtende deadline KAART KLEUREN */
         .card.card-warning { background: #382502; border-left-color: var(--warning) !important; }
         .card.card-warning:hover { background: #4a3204; }
         .card.card-late { background: #3f1010; border-left-color: var(--danger) !important; }
         .card.card-late:hover { background: #521515; }
 
-        .card-title { font-weight: 600; margin-bottom: 6px; font-size: 16px; color: #fff; padding-right: 60px;}
+        .card-title { font-weight: 600; margin-bottom: 6px; font-size: 16px; color: #fff; padding-right: 90px;}
         .card-pub { font-size: 13px; color: var(--text-muted); margin-bottom: 10px;}
         .card-meta { font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); margin-top: 8px;}
-        
-        /* Oplichtende deadline tekst */
         .deadline-warning { color: var(--danger) !important; font-weight: bold; text-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
 
         .bgg-icon { width: 18px; height: 18px; cursor: pointer; transition: filter 0.2s; vertical-align: middle; }
         .bgg-icon:hover { filter: brightness(1.3) drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
         .meeple-icon { width: 12px; height: 12px; vertical-align: middle; margin-right: 4px; filter: brightness(0) invert(1); }
         
-        .card-icons { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; align-items: center; font-size: 16px; z-index: 10;}
+        .card-icons { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; align-items: center; font-size: 16px; z-index: 10;}
         .tag { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
 
         #archive-section { display: none; margin-top: 40px; border-top: 2px dashed var(--border); padding-top: 20px;}
@@ -127,7 +120,6 @@
 
     <div id="app-screen" style="display: none;" class="container">
         
-        <!-- Waarschuwing Balk -->
         <div id="deadline-alert">
             <h4><i class="fa-solid fa-triangle-exclamation"></i> Actie Vereist! Deze reviews zijn te laat:</h4>
             <ul id="deadline-list"></ul>
@@ -165,7 +157,7 @@
         </div>
 
         <div class="version-footer">
-            Spel Op Tafel Review Systeem - Versie 0.9.4
+            Spel Op Tafel Review Systeem - Versie 0.9.5
         </div>
     </div>
 
@@ -183,8 +175,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Uitgever</label>
-                    <input type="text" id="gUitgever" placeholder="Bijv. 999 Games">
+                    <label>Reviewexemplaar van (Uitgever)</label>
+                    <input type="text" id="gUitgever" placeholder="Laat leeg voor eigen exemplaar">
                 </div>
                 
                 <div class="form-group">
@@ -192,8 +184,8 @@
                     <select id="gStatus">
                         <optgroup label="Reviewexemplaar">
                             <option value="Aangeboden">Aangeboden</option>
-                            <option value="Toegekend">Toegekend</option>
                             <option value="Aangevraagd">Aangevraagd</option>
+                            <option value="Toegekend">Toegekend</option>
                             <option value="Opgestuurd">Opgestuurd</option>
                         </optgroup>
                         <optgroup label="In bezit">
@@ -234,11 +226,21 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label><i class="fa-solid fa-hashtag"></i> Social Media</label>
+                    <select id="gSocial">
+                        <option value="Geen">Geen</option>
+                        <option value="Voorbereid">Voorbereid</option>
+                        <option value="Gepland">Gepland</option>
+                        <option value="Gepubliceerd">Gepubliceerd</option>
+                    </select>
+                </div>
+
                 <div class="form-group full-width">
                     <label><img src="BGG.svg" class="meeple-icon" style="width:14px; height:14px;" onerror="this.style.display='none'"> BoardGameGeek Link</label>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="gBgg" placeholder="https://boardgamegeek.com/boardgame/...">
-                        <button class="btn" style="padding: 10px 15px;" onclick="autoFetchBGG()" title="Zoek automatisch op BGG op basis van titel">
+                        <button class="btn" style="padding: 10px 15px;" onclick="autoFetchBGG()" title="Zoek automatisch op BGG">
                             <i class="fa-solid fa-magnifying-glass"></i> Zoek BGG
                         </button>
                     </div>
@@ -258,15 +260,17 @@
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzyMLVMBIwLUmLqFkiBn5BWs0b_btiOnj-L63ifH-2wsTGRMSTnt-8rFisFMGSEy-tG/exec"; 
     
-    let appData = { games: [], archiveGames: [], reviewers: [], episodes: [], stats: {} };
+    // stats data structuur is aangepast om review exemplaren apart bij te houden
+    let appData = { games: [], archiveGames: [], reviewers: [], episodes: [] };
     let top10Episodes = [];
     let lastActionTime = 0; 
     
+    // Aangevraagd en Toegekend zijn hier omgewisseld in volgorde!
     const categories = {
         "Reviewexemplaar": [
             { id: "Aangeboden", name: "Aangeboden", icon: "fa-handshake" },
-            { id: "Toegekend", name: "Toegekend", icon: "fa-user-check" },
             { id: "Aangevraagd", name: "Aangevraagd", icon: "fa-envelope-open-text" },
+            { id: "Toegekend", name: "Toegekend", icon: "fa-user-check" },
             { id: "Opgestuurd", name: "Opgestuurd", icon: "fa-box" }
         ],
         "In bezit": [
@@ -448,6 +452,29 @@
         const revFilter = document.getElementById('filterReviewer').value;
         const sortOrder = document.getElementById('sortOrder').value;
 
+        // BEREKEN STATISTIEKEN (Totaal + Aantal Reviewexemplaren)
+        let statsData = {};
+        appData.reviewers.forEach(r => statsData[r] = { total: 0, reviewCopies: 0 });
+
+        // Tellen in het Archief (alles wat in overzicht staat)
+        appData.archiveGames.forEach(g => {
+            if (statsData[g.reviewer]) {
+                statsData[g.reviewer].total++;
+                if (g.isReviewCopy) statsData[g.reviewer].reviewCopies++;
+            }
+        });
+
+        // Tellen in Kanban (alleen de actieve, om dubbeltellen met archief te voorkomen!)
+        const inOverzichtStatuses = ['Gepland', 'Opgenomen', 'Uitgezonden'];
+        appData.games.forEach(g => {
+            if (g.reviewer && !inOverzichtStatuses.includes(g.status)) {
+                if (statsData[g.reviewer]) {
+                    statsData[g.reviewer].total++;
+                    if (g.uitgever && g.uitgever.trim() !== "") statsData[g.reviewer].reviewCopies++;
+                }
+            }
+        });
+
         Object.keys(categories).forEach(cat => {
             const rowDiv = document.createElement('div');
             const catClass = cat === "Reviewexemplaar" ? "cat-review" : "cat-bezit";
@@ -513,9 +540,6 @@
 
         sortedGames.forEach(game => {
             const deadlineStatus = checkDeadline(game.deadline);
-            
-            // Controleer of waarschuwingen moeten worden weergegeven:
-            // Alleen als de tekst NIET 'Gepubliceerd' is, en de game NIET in kolom 'Uitgezonden' staat
             const isWarningActive = game.tekstStatus !== 'Gepubliceerd' && game.status !== 'Uitgezonden';
             
             if (deadlineStatus.isLate && isWarningActive) {
@@ -536,7 +560,6 @@
                 const card = document.createElement('div');
                 let cardClass = 'card';
                 
-                // Kaartkleur ook alleen rood/oranje als review nog niet volledig afgerond is
                 if (isWarningActive) {
                     if (deadlineStatus.isLate) cardClass += ' card-late';
                     else if (deadlineStatus.isWarning) cardClass += ' card-warning';
@@ -546,17 +569,28 @@
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
+                // NIEUWE ICOON LOGICA!
                 let iconsHtml = '<div class="card-icons">';
+                
+                // 1. Social Media (Megaphone/Hashtag Icoon)
+                if (game.socialMedia === 'Gepubliceerd') {
+                    iconsHtml += `<i class="fa-solid fa-hashtag" style="color: #e84393; text-shadow: 0 0 5px rgba(232, 67, 147, 0.4);" title="Social Media Gepubliceerd"></i>`;
+                }
+                // 2. Review Exemplaar Cadeautje
+                if (game.uitgever && game.uitgever.trim() !== "") {
+                    iconsHtml += `<i class="fa-solid fa-gift" style="color: var(--primary);" title="Reviewexemplaar van: ${game.uitgever}"></i>`;
+                }
+                // 3. Tekst
                 if (game.tekstStatus === 'Af') iconsHtml += `<i class="fa-solid fa-file-lines" style="color: #4ade80;" title="Tekst Af"></i>`;
                 if (game.tekstStatus === 'Gepubliceerd') iconsHtml += `<i class="fa-solid fa-globe" style="color: var(--blue);" title="Gepubliceerd"></i>`;
-                
+                // 4. BGG
                 if(game.bggLink) {
                     iconsHtml += `<img src="BGG.svg" class="bgg-icon" title="Bekijk op BoardGameGeek" onclick="event.stopPropagation(); window.open('${game.bggLink}', '_blank');" onerror="this.style.display='none'">`;
                 }
                 iconsHtml += '</div>';
 
                 let html = iconsHtml + `<div class="card-title">${game.titel}</div>`;
-                if(game.uitgever) html += `<div class="card-pub"><i class="fa-regular fa-building"></i> ${game.uitgever}</div>`;
+                if(game.uitgever) html += `<div class="card-pub" style="color:var(--primary);"><i class="fa-regular fa-building"></i> ${game.uitgever}</div>`;
                 
                 html += `<div class="card-meta">`;
                 if(game.reviewer) {
@@ -567,11 +601,8 @@
                 if (game.afleveringNr) {
                     html += `<span style="font-weight:bold; color: var(--primary);"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
                 } else if (game.deadline) {
-                    // Update: Ook de tekst "rood" maken alleen als het de moeite waard is
                     let deadlineClass = "";
-                    if ((deadlineStatus.isLate || deadlineStatus.isWarning) && isWarningActive) {
-                        deadlineClass = "deadline-warning";
-                    }
+                    if ((deadlineStatus.isLate || deadlineStatus.isWarning) && isWarningActive) deadlineClass = "deadline-warning";
                     html += `<span class="${deadlineClass}"><i class="fa-regular fa-clock"></i> ${formatDisplayDate(game.deadline)}</span>`;
                 }
                 html += `</div>`;
@@ -612,10 +643,13 @@
                 const query = encodeURIComponent(g.titel.toLowerCase());
                 const archiveBggLink = "https://boardgamegeek.com/geeksearch.php?action=search&objecttype=boardgame&q=" + query;
 
+                let archiveIcons = '';
+                if (g.isReviewCopy) archiveIcons = `<i class="fa-solid fa-gift" style="color: var(--primary); margin-right: 5px;" title="Reviewexemplaar"></i>`;
+
                 archiveResults.innerHTML += `
                     <div class="archive-card">
                         <div style="font-weight: bold; color: #fff; margin-bottom: 5px; display:flex; justify-content:space-between;">
-                            ${g.titel}
+                            <span>${archiveIcons} ${g.titel}</span>
                             <img src="BGG.svg" class="bgg-icon" style="width:16px; height:16px;" onclick="window.open('${archiveBggLink}', '_blank');" title="Zoek op BGG" onerror="this.style.display='none'">
                         </div>
                         <div style="font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
@@ -632,13 +666,17 @@
 
         updateCounts(colCounts);
 
-        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Totaal aantal Reviews (incl. Archief):</strong> `;
-        let sortedStats = Object.keys(appData.stats).sort((a,b) => appData.stats[b] - appData.stats[a]);
+        // NIEUWE STATISTIEKEN BEREKENING (Totaal + Cadeautjes)
+        let statsHtml = `<strong><i class="fa-solid fa-chart-pie"></i> Reviews:</strong> `;
+        let sortedStats = Object.keys(statsData).sort((a,b) => statsData[b].total - statsData[a].total);
         
         sortedStats.forEach(r => {
-            if(appData.stats[r] > 0 && (!revFilter || revFilter === r)) {
+            if(statsData[r].total > 0 && (!revFilter || revFilter === r)) {
                 const tagColor = stringToColor(r);
-                statsHtml += `<span class="tag" style="margin-left: 10px; background-color: ${tagColor};"><img src="meeple.png" class="meeple-icon" style="width:10px; height:10px;" onerror="this.style.display='none'"> ${r}: ${appData.stats[r]}</span> `;
+                statsHtml += `<span class="tag" style="margin-left: 10px; background-color: ${tagColor};">
+                                <img src="meeple.png" class="meeple-icon" style="width:10px; height:10px;" onerror="this.style.display='none'"> ${r}: ${statsData[r].total} 
+                                <span style="color:var(--primary); margin-left:4px;" title="Aantal Reviewexemplaren ontvangen"><i class="fa-solid fa-gift"></i> ${statsData[r].reviewCopies}</span>
+                              </span> `;
             }
         });
         document.getElementById('statsBar').innerHTML = statsHtml;
@@ -665,6 +703,7 @@
         populateEpisodeDropdown(game.afleveringNr);
         document.getElementById('gVerwacht').value = game.verwacht;
         document.getElementById('gTekst').value = game.tekstStatus || "";
+        document.getElementById('gSocial').value = game.socialMedia || "Geen"; // NIEUW
         document.getElementById('gBgg').value = game.bggLink;
         
         document.getElementById('modal-overlay').style.display = 'flex';
@@ -681,6 +720,7 @@
         populateEpisodeDropdown("");
         document.getElementById('gVerwacht').value = "";
         document.getElementById('gTekst').value = "";
+        document.getElementById('gSocial').value = "Geen"; // NIEUW
         document.getElementById('gBgg').value = "";
         
         document.getElementById('modal-overlay').style.display = 'flex';
@@ -707,6 +747,7 @@
             verwacht: document.getElementById('gVerwacht').value,
             afleveringNr: document.getElementById('gAflevering').value,
             tekstStatus: document.getElementById('gTekst').value,
+            socialMedia: document.getElementById('gSocial').value, // NIEUW
             bggLink: document.getElementById('gBgg').value
         };
 
