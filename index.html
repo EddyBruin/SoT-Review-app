@@ -18,7 +18,8 @@
             --text-muted: #9ca3af;
             --border: #333333;
             --column-bg: #1a1a1a;
-            --danger: #ef4444; /* Rood voor deadlines */
+            --danger: #ef4444; 
+            --warning: #f59e0b;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: var(--text); }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
@@ -61,13 +62,21 @@
         .col-header { font-weight: bold; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;}
         .task-list { flex-grow: 1; min-height: 100px; display: flex; flex-direction: column; gap: 12px; }
         
+        /* Kanban Card Standaard */
         .card { background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; position: relative; border-left: 5px solid; transition: all 0.2s ease;}
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.4);}
+        
+        /* Oplichtende deadline KAART KLEUREN */
+        .card.card-warning { background: #382502; border-left-color: var(--warning) !important; }
+        .card.card-warning:hover { background: #4a3204; }
+        .card.card-late { background: #3f1010; border-left-color: var(--danger) !important; }
+        .card.card-late:hover { background: #521515; }
+
         .card-title { font-weight: 600; margin-bottom: 6px; font-size: 16px; color: #fff; padding-right: 60px;}
         .card-pub { font-size: 13px; color: var(--text-muted); margin-bottom: 10px;}
         .card-meta { font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); margin-top: 8px;}
         
-        /* Oplichtende deadline */
+        /* Oplichtende deadline tekst */
         .deadline-warning { color: var(--danger) !important; font-weight: bold; text-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
 
         .bgg-icon { width: 18px; height: 18px; cursor: pointer; transition: filter 0.2s; vertical-align: middle; }
@@ -118,7 +127,7 @@
 
     <div id="app-screen" style="display: none;" class="container">
         
-        <!-- Waarschuwing Balk (verborgen tenzij er te late reviews zijn) -->
+        <!-- Waarschuwing Balk -->
         <div id="deadline-alert">
             <h4><i class="fa-solid fa-triangle-exclamation"></i> Actie Vereist! Deze reviews zijn te laat:</h4>
             <ul id="deadline-list"></ul>
@@ -134,7 +143,6 @@
                     <i class="fa-solid fa-search" style="position: absolute; left: 10px; top: 12px; color: #888;"></i>
                     <input type="text" id="searchInput" placeholder="Zoek op titel of aflevering..." onkeyup="renderBoard()" style="padding-left: 35px; width: 220px;">
                 </div>
-                <!-- Sortering Standaard op Aflevering (value afl) -->
                 <select id="sortOrder" onchange="renderBoard()">
                     <option value="afl" selected>Sorteer: Aflevering</option>
                     <option value="az">Sorteer: A - Z</option>
@@ -157,7 +165,7 @@
         </div>
 
         <div class="version-footer">
-            Spel Op Tafel Review Systeem - Versie 0.9.2
+            Spel Op Tafel Review Systeem - Versie 0.9.4
         </div>
     </div>
 
@@ -252,8 +260,6 @@
     
     let appData = { games: [], archiveGames: [], reviewers: [], episodes: [], stats: {} };
     let top10Episodes = [];
-    
-    // Zorgt ervoor dat polling niet overschrijft net na een actie!
     let lastActionTime = 0; 
     
     const categories = {
@@ -300,7 +306,6 @@
         return datePart;
     }
 
-    // Handige hulpmethode om deadlines te checken
     function checkDeadline(deadlineStr) {
         if (!deadlineStr) return { isLate: false, isWarning: false };
         const dPart = formatForDateInput(deadlineStr);
@@ -315,7 +320,7 @@
         
         return {
             isLate: diffDays < 0,
-            isWarning: diffDays >= 0 && diffDays <= 7 // Rood als VANDAAG of BINNEN 7 DAGEN
+            isWarning: diffDays >= 0 && diffDays <= 7 
         };
     }
 
@@ -327,17 +332,14 @@
         if(localStorage.getItem('sot_token')) { showApp(); fetchData(); }
     };
 
-    // Verbeterde Silent Poll met Race-Condition beveiliging!
     setInterval(() => {
-        // Als we net een actie hebben gedaan (opslaan, slepen), blokkeren we de poll voor 5 seconden
         if (Date.now() - lastActionTime < 5000) return;
-        
         if (document.getElementById('modal-overlay').style.display === 'flex') return;
+        
         fetch(GAS_URL + "?action=getData&token=" + localStorage.getItem('sot_token'))
             .then(res => res.json())
             .then(data => {
                 if(data.error) return;
-                // Als we nèt iets hebben versleept in de afgelopen nanoseconden, gooi inkomende data weg.
                 if (Date.now() - lastActionTime < 5000) return; 
 
                 const newDataStr = JSON.stringify(data.games);
@@ -476,7 +478,7 @@
                         const newStatus = evt.to.getAttribute('data-status');
                         const id = itemEl.getAttribute('data-id');
                         
-                        lastActionTime = Date.now(); // Blokkeer pollen voor 5s
+                        lastActionTime = Date.now();
                         
                         const game = appData.games.find(g => g.id === id);
                         if(game) game.status = newStatus;
@@ -510,11 +512,13 @@
         });
 
         sortedGames.forEach(game => {
-            // Deadline checks uitvoeren
             const deadlineStatus = checkDeadline(game.deadline);
             
-            // Als hij in de SPA zit, nog actief is (dus niet tekst af/gepubliceerd) en telaat is, toon in balk!
-            if (deadlineStatus.isLate && (!game.tekstStatus || game.tekstStatus === '') && !['Opgenomen', 'Uitgezonden'].includes(game.status)) {
+            // Controleer of waarschuwingen moeten worden weergegeven:
+            // Alleen als de tekst NIET 'Gepubliceerd' is, en de game NIET in kolom 'Uitgezonden' staat
+            const isWarningActive = game.tekstStatus !== 'Gepubliceerd' && game.status !== 'Uitgezonden';
+            
+            if (deadlineStatus.isLate && isWarningActive) {
                 lateReviewsCount++;
                 deadlineList.innerHTML += `<li><strong>${game.reviewer || 'Onbekend'}:</strong> ${game.titel} <em>(Deadline was: ${formatDisplayDate(game.deadline)})</em></li>`;
             }
@@ -530,7 +534,15 @@
                 colCounts[game.status]++; 
                 
                 const card = document.createElement('div');
-                card.className = 'card';
+                let cardClass = 'card';
+                
+                // Kaartkleur ook alleen rood/oranje als review nog niet volledig afgerond is
+                if (isWarningActive) {
+                    if (deadlineStatus.isLate) cardClass += ' card-late';
+                    else if (deadlineStatus.isWarning) cardClass += ' card-warning';
+                }
+                
+                card.className = cardClass;
                 card.setAttribute('data-id', game.id);
                 card.onclick = () => editGame(game.id);
                 
@@ -555,9 +567,9 @@
                 if (game.afleveringNr) {
                     html += `<span style="font-weight:bold; color: var(--primary);"><i class="fa-solid fa-podcast"></i> Afl. ${game.afleveringNr}</span>`;
                 } else if (game.deadline) {
-                    // Check deadline kleur! (Alleen kleur tonen als game actief is)
+                    // Update: Ook de tekst "rood" maken alleen als het de moeite waard is
                     let deadlineClass = "";
-                    if ((deadlineStatus.isLate || deadlineStatus.isWarning) && (!game.tekstStatus || game.tekstStatus === '') && !['Opgenomen', 'Uitgezonden'].includes(game.status)) {
+                    if ((deadlineStatus.isLate || deadlineStatus.isWarning) && isWarningActive) {
                         deadlineClass = "deadline-warning";
                     }
                     html += `<span class="${deadlineClass}"><i class="fa-regular fa-clock"></i> ${formatDisplayDate(game.deadline)}</span>`;
@@ -569,7 +581,6 @@
             }
         });
 
-        // Toon of verberg de alarm balk
         if (lateReviewsCount > 0) deadlineAlert.style.display = 'block';
         else deadlineAlert.style.display = 'none';
 
@@ -684,7 +695,7 @@
         }
         if(!titel) { alert("Titel mag niet leeg zijn!"); return; }
 
-        lastActionTime = Date.now(); // Blokkeer poll tijdelijk
+        lastActionTime = Date.now(); 
 
         const game = {
             id: document.getElementById('gId').value,
@@ -726,7 +737,7 @@
             document.getElementById('gTitel').value = ""; 
             document.getElementById('modal-overlay').style.display = 'none';
             
-            lastActionTime = Date.now(); // Blokkeer poll tijdelijk
+            lastActionTime = Date.now(); 
             appData.games = appData.games.filter(g => g.id !== id);
             renderBoard();
             
